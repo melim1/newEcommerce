@@ -91,9 +91,14 @@ function NavBar() {
             <div className="products">
                 {products.map(product => (
                     <div key={product.id} className="product-card">
-                        <img src={`http://127.0.0.1:8000${product.image}`} alt={product.name} />
-                        <h3>{product.name}</h3>
-                        <p>${product.price}</p>
+                        <div className='image-container'>
+                            <img src={`http://127.0.0.1:8000${product.image}`} alt={product.name} />
+                           
+                        </div>   
+                        <div className='product-info'> 
+                            <h3>{product.name}</h3>
+                            <p>${product.price}</p>
+                        </div>
                     </div>
                 ))}
             </div>
