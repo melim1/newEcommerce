@@ -16,6 +16,9 @@ class Product(models.Model):
     description= models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     category= models.CharField(max_length=15, choices=CATEGORY,blank=True, null=True)
+    ingredient = models.TextField(blank=True, null=True)  # Nouveau champ
+    size = models.CharField(max_length=50, blank=True, null=True)  # Nouveau champ
+
     def __str__(self):
         return self.name
     

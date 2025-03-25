@@ -1,7 +1,9 @@
-import '../styles.css'
+import '../styles/styles.css'
 import React, { useEffect, useState } from 'react';
 import { FaShoppingCart, FaBars } from 'react-icons/fa';
 import api from '../api';
+import { Link } from 'react-router-dom';
+
 
 
 
@@ -91,14 +93,11 @@ function NavBar() {
             <div className="products">
                 {products.map(product => (
                     <div key={product.id} className="product-card">
-                        <div className='image-container'>
-                            <img src={`http://127.0.0.1:8000${product.image}`} alt={product.name} />
-                           
-                        </div>   
-                        <div className='product-info'> 
-                            <h3>{product.name}</h3>
-                            <p>${product.price}</p>
-                        </div>
+                      <Link to={`products/${product.slug}`} className="product-link">
+                        <img src={`http://127.0.0.1:8000${product.image}`} alt={product.name} />
+                        <h3>{product.name}</h3>
+                        <p>${product.price}</p>
+                      </Link> 
                     </div>
                 ))}
             </div>
