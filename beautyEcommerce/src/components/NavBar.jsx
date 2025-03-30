@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { FaShoppingCart, FaBars } from 'react-icons/fa';
 import api from '../api';
 import { Link } from 'react-router-dom';
-
+import { randomValue } from '../GenerateCartCode';
+import Footer from './UI/Footer';
 
 
 
@@ -28,8 +29,6 @@ function NavBar() {
     })
     }, [])
 
-    
-
   return (
     
     <div className="landing-page">
@@ -39,9 +38,9 @@ function NavBar() {
                     ☰
                 </div>
         <h1 className="logo">Touché Beauty</h1>
-        <div className="cart-icon">
+        <Link to="/cart" className="cart-icon">
                     <FaShoppingCart />
-                </div>
+                </Link>
     </header>
     <hr className="divider"></hr>
      {/* Sidebar */}
@@ -123,53 +122,10 @@ function NavBar() {
         </div>
     </section>
     <hr className="divider"></hr>
+    <Footer />
 
-    {/* Footer */}
-    <footer className="footer">
-            {/* Section principale avec les colonnes */}
-            <div className="footer-content">
-                {/* Colonne 1: À propos */}
-                <div className="footer-section">
-                    <h3>À Propos</h3>
-                    <ul>
-                        <li><a href="/about">Notre histoire</a></li>
-                        <li><a href="/mission">Notre mission</a></li>
-                        <li><a href="/values">Nos valeurs</a></li>
-                    </ul>
-                </div>
 
-                {/* Colonne 2: Assistance */}
-                <div className="footer-section">
-                    <h3>Assistance</h3>
-                    <ul>
-                        <li><a href="/contact">Nous contacter</a></li>
-                        <li><a href="/faq">FAQ</a></li>
-                        <li><a href="/returns">Retours et remboursements</a></li>
-                    </ul>
-                </div>
-
-                {/* Colonne 3: Réseaux sociaux */}
-                <div className="footer-section">
-                    <h3>Suivez-nous</h3>
-                    <div className="social-links">
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
-                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
-                        <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer">Pinterest</a>
-                    </div>
-                </div>
-            </div>
-
-            {/* Section basse avec mentions légales */}
-            <div className="footer-bottom">
-                <p>&copy; {new Date().getFullYear()} Touche. Tous droits réservés.</p>
-                <p>
-                    <a href="/privacy-policy">Politique de confidentialité</a> | 
-                    <a href="/terms-of-service">Conditions d'utilisation</a>
-                </p>
-            </div>
-        </footer>
-</div>
+ </div> 
   )
 }
 
