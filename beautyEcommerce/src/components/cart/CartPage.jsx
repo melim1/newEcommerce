@@ -1,111 +1,131 @@
 import React, { useState, useEffect } from 'react';
 import "../../styles/Cart.css";
 import { useNavigate } from "react-router-dom";
-import {FaUser, FaBars } from "react-icons/fa"; // Ajout des icônes
-import { Link } from "react-router-dom";
-
-
+import Footer from '../UI/Footer';
+import Header from '../UI/Header';
+import api from '../../api';
 
 const CartPage = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
-  
+  const cart_code = localStorage.getItem("cart_code");
+  const [cartTotal, setCartTotal] = useState(0);
 
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartItems(storedCart);
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    };
+  
+    api.get("get_cart/", config)
+      .then(res => {
+        console.log("Panier:", res.data);
+        setCartItems(res.data.items);
+        setCartTotal(res.data.sum_total);
+      })
+      .catch(err => {
+        console.log("Erreur panier:", err.message);
+      });
   }, []);
+  
 
-  const calculateTotal = () => {
-    return cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2);
+  const updateItemQuantity = (itemId, newQty) => {
+    api.patch("update_quantity/", {
+      item_id: itemId,
+      quantity: newQty,
+    })
+    .then(res => {
+      const updatedItem = res.data.data;
+      const updatedItems = cartItems.map(it =>
+        it.id === itemId ? { ...it, quantity: updatedItem.quantity } : it
+      );
+      setCartItems(updatedItems);
+
+      const newTotal = updatedItems.reduce(
+        (acc, it) => acc + it.product.price * it.quantity,
+        0
+      );
+      setCartTotal(newTotal);
+    })
+    .catch(err => console.log("Erreur maj quantité:", err));
   };
 
-  const subtotal = calculateTotal(); // ✅ Maintenant c'est correct
+  const deleteCartItem = (itemId) => {
+    const confirmDelete = window.confirm("Supprimer l'article ?");
+    if (confirmDelete) {
+      api.post("delete_cartitem/", { item_id: itemId })
+        .then(res => {
+          console.log(res.data);
+          const updatedItems = cartItems.filter(it => it.id !== itemId);
+          setCartItems(updatedItems);
 
-   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
-      const toggleSidebar = () => {
-          setIsSidebarOpen(!isSidebarOpen);
-      };
-      
-
-
+          const newTotal = updatedItems.reduce(
+            (acc, it) => acc + it.product.price * it.quantity,
+            0
+          );
+          setCartTotal(newTotal);
+        })
+        .catch(err => {
+          console.log("Erreur suppression:", err.message);
+        });
+    }
+  };
   return (
+    <>
+      <div className="cart-container">
+        <Header />
+        <hr className="divider" />
+        <h2 className="cart-title">Your Shopping Cart</h2>
 
-    <div className="cart-container">
+        <div className="cart-content">
+          <div className="cart-items">
+            {cartItems.length > 0 ? (
+              cartItems.map((item) => (
+                <div key={item.id} className="cart-item">
+                  <img src={`http://127.0.0.1:8000${item.product.image}`} alt={item.product.name} />
+                  <div className="cart-item-details">
+                    <h3 className='product-name'>{item.product.name}</h3>
+                    <p className='product-price'>
+                      ${parseFloat(item.product.price * item.quantity).toFixed(2)} (Unit: ${parseFloat(item.product.price).toFixed(2)})
+                    </p>
 
-        {/* Barre de navigation */}
-      <div className="cart-navbar">
-        {/* Sidebar (Menu Latéral) */}
-            <div className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
-                <h3 className='menu-cart'>Menu</h3>
-            <button className="close-btn" onClick={toggleSidebar}>X</button>
-            <ul>
-                <li><a href="#">Accueil</a></li>
-                <li><a href="#">Produits</a></li>
-                <li><a href="#">Contact</a></li>
-            </ul>
-            </div>
+                    <div className="cart-item-quantity">
+                      <button onClick={() => updateItemQuantity(item.id, Math.max(1, item.quantity - 1))}>-</button>
+                      <span className='product-quantity'>{item.quantity}</span>
+                      <button onClick={() => updateItemQuantity(item.id, item.quantity + 1)}>+</button>
+                    </div>
 
-        <FaBars className="menu-icon" onClick={toggleSidebar} /> {/* Menu burger à gauche */}
-        
-        <div className="nav-icons">
-          
-
-          <Link to="/profil" className="profile-icon">
-               <FaUser  />
-          </Link>
-         
-        </div>
-      </div>
-
-
-
-      <h2 className="cart-title">Your Shopping Cart</h2>
-
-      <div className="cart-content">
-        {/* Liste des produits (gauche) */}
-        <div className="cart-items">
-          {cartItems.length > 0 ? (
-            cartItems.map((item) => (
-              <div key={item.id} className="cart-item">
-                <img src="images/img1.jpg"alt={item.name} className="cart-item-image" />
-                <div className="cart-item-details">
-                  <h3>{item.name}</h3>
-                  <p>${parseFloat(item.price).toFixed(2)}</p>
-
-                  <div className="cart-item-quantity">
-                    <button>-</button>
-                    <span>{item.quantity}</span>
-                    <button>+</button>
+                    <button className="cart-item-remove" onClick={() => deleteCartItem(item.id)}>
+                      Supprimer
+                    </button>
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p>Your cart is empty.</p>
-          )}
-        </div>
-
-        {/* Carte de résumé (droite) */}
-        <div className="cart-summary">
-        <h3>Order Summary</h3>
-        <hr className="cart-summary-divider" />
-        
-          <div className="summary-details">
-            <p>Subtotal: <span>${subtotal}</span></p>
-            <p className='shipping'>Shipping: <span>Calculated on checkout</span></p>
-            <hr className="cart-summary-divider" />
-            <p className="total">Total: <span>${subtotal}</span></p>
-            <hr className="cart-summary-divider" />
+              ))
+            ) : (
+              <p>Your cart is empty.</p>
+            )}
           </div>
-          
-          <button className="checkout-button">CHECKOUT NOW</button>
-          <button className="continue-shopping">CONTINUE SHOPPING</button>
+
+          <div className="cart-summary">
+            <h3>Order Summary</h3>
+            <hr className="cart-summary-divider" />
+            <div className="summary-details">
+              <p>Subtotal: <span>${cartTotal.toFixed(2)}</span></p>
+              <p>Shipping: <span>Calculated on checkout</span></p>
+              <hr className="cart-summary-divider" />
+              <p>Total: <span>${cartTotal.toFixed(2)}</span></p>
+              <hr className="cart-summary-divider" />
+            </div>
+
+            <button className="checkout-button" onClick={() => navigate("/checkout")}>CHECKOUT NOW</button>
+            <button className="continue-shopping" onClick={() => navigate("/")}>CONTINUE SHOPPING</button>
+          </div>
         </div>
-      
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 

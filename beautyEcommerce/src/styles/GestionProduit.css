@@ -1,0 +1,126 @@
+/* GestionProduit.css */
+
+/* Conteneur principal */
+.gestion-produit {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: white;
+}
+
+/* Titre principal */
+.gestion-produit h1 {
+    text-align: center;
+    color: black;
+    background-color: white;
+}
+
+/* Formulaire */
+.gestion-produit form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.gestion-produit form h2 {
+    text-align: center;
+    color: black;
+}
+
+.gestion-produit label {
+    font-size: 14px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 8px;
+    margin-top: 10px;
+    background-color: white;
+}
+
+.gestion-produit input[type="text"], 
+.gestion-produit input[type="number"], 
+.gestion-produit input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+}
+
+.gestion-produit button {
+    background-color: #0d2738;
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 10px;
+}
+
+.gestion-produit button:hover {
+    background-color: #2980b9;
+}
+
+/* Liste des produits */
+.gestion-produit h2 {
+    text-align: center;
+    color: black;
+    margin-top: 40px;
+}
+
+.gestion-produit table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.gestion-produit th, .gestion-produit td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    background-color: white;
+}
+
+.gestion-produit th {
+    background-color: #0d2738;
+    color: white;
+}
+
+.gestion-produit tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Boutons d'actions */
+.gestion-produit button {
+   padding-right: 5px;
+}
+
+.gestion-produit button:active {
+    transform: scale(0.98);
+}
+
+/* Responsivité */
+@media screen and (max-width: 768px) {
+    .gestion-produit form {
+        padding: 15px;
+    }
+
+    .gestion-produit button {
+        font-size: 14px;
+    }
+
+    .gestion-produit table {
+        font-size: 12px;
+    }
+
+    .gestion-produit th, .gestion-produit td {
+        padding: 8px;
+    }
+}
+

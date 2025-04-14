@@ -1,0 +1,78 @@
+/* Section Instagram */
+.instagram-container {
+    background-color: transparent;
+    padding: 50px 20px; /* Ajout d'un padding standard */
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box; /* Évite les débordements */
+    overflow: hidden; /* Empêche les débordements */
+}
+
+/* Partie Texte et Images */
+.instagram-content {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.text-section {
+    text-align: left;
+    background-color: transparent;
+}
+
+.text-section h3 {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+/* Bouton mieux centré */
+.see-more {
+    background-color: #3b241c; /* Marron foncé */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: inline-block; /* Correction ici */
+    text-decoration: none;
+}
+
+.images-section {
+    display: flex;
+    gap: 15px;
+}
+
+.images-section img {
+    width: 200px;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.instagram-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #3b241c; /* Marron foncé */
+}
+
+/* Adaptation mobile */
+@media (max-width: 768px) {
+    .instagram-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .images-section {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}

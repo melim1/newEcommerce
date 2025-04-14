@@ -1,0 +1,51 @@
+.confirmation-container {
+    position: relative;
+    min-height: 100vh; /* hauteur minimum = hauteur écran */
+    width: 100vw;       /* prend toute la largeur */
+    padding: 2rem;
+    margin-top: 50px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    background-color: #FBF6F2;
+    border-radius: 0; /* pour que ça prenne bien les bords */
+    box-shadow: none; /* optionnel : tu peux le laisser si tu veux un effet */
+  }
+  
+  .ligne-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+    
+    background-color: transparent;
+    padding: 5px;
+  }
+  ul{
+    background-color: #FBF6F2;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  }
+  
+  .produit-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    background-color: #FBF6F2;
+  }
+  
+  .commande-total {
+    text-align: right;
+    font-size: 1.2rem;
+    margin-top: 2rem;
+    background-color: #FBF6F2;
+  }
+ 
+  .commande{
+    background-color: #FBF6F2;
+  }
+  .details{
+    background-color: #FBF6F2;
+  }
+
+  
+  

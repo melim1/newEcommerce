@@ -1,0 +1,36 @@
+.admin-dashboard {
+    font-family: Arial, sans-serif;
+    
+  }
+  
+  .admin-header {
+   
+    padding: 10px;
+    color: black;
+  }
+  
+  .admin-header h1 {
+    margin: 0;
+    padding-bottom: 10px;
+  }
+  
+  .top-nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .top-nav li {
+    cursor: pointer;
+    color: black;
+  }
+  
+  .top-nav li:hover {
+    text-decoration: underline;
+  }
+  
+  .main-content {
+    padding: 20px;
+  }
+  
