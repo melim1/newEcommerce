@@ -106,6 +106,7 @@ const Paiement = () => {
         </div>
       </form>
     </div>
+    
   
     <Footer/>
     </div>

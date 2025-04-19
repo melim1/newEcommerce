@@ -39,7 +39,7 @@ function Home() {
       <section className="banner">
         <div className="banner-content">
           <h2>Reveal Yourself</h2>
-          <p>With our biggest shade range in cosmetic history</p>
+        
           <button>Find Your Match</button>
         </div>
         <div className="banner-images">
@@ -52,21 +52,18 @@ function Home() {
 
       {/* Most Wanted */}
       <section className="most-wanted">
-        <h2 className="title">Touché</h2>
-        <h3>MOST WANTED</h3>
+      <p className="title">MORE OF</p>
+        <h3>Touché Beauty</h3>
         <div className="products">
           {products.slice(0, 4).map(product => (
             <div key={product.id} className="product-card">
               <Link to={`products/${product.slug}`} className="product-link">
-
-             
-                <img
-                  src={product.image}
-                  alt="Produit"
-                  width="80"
-                />
-           
-
+              
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                  />
+                
                 <h3>{product.name}</h3>
                 <p>${product.price}</p>
               </Link>

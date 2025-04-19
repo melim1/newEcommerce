@@ -4,74 +4,113 @@ import { useNavigate } from "react-router-dom";
 import Footer from '../UI/Footer';
 import Header from '../UI/Header';
 import api from '../../api';
+import { v4 as uuidv4 } from 'uuid';
 
 const CartPage = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
-  const cart_code = localStorage.getItem("cart_code");
   const [cartTotal, setCartTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [sessionId, setSessionId] = useState(localStorage.getItem("session_id"));
+  const userRole = localStorage.getItem("user_role");
+  const isAuthenticated = !!localStorage.getItem("token");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`
+    if (!sessionId) {
+      const newSessionId = uuidv4();
+      localStorage.setItem("session_id", newSessionId);
+      setSessionId(newSessionId);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("access_token");
+        const role = localStorage.getItem("user_role")?.toUpperCase();
+  
+        let url = 'get_cart/';
+        let config = {};
+  
+        if (token && role === "CLIENT") {
+          // 🟢 Client connecté → pas de session_id
+          config.headers = {
+            Authorization: `Bearer ${token}`
+          };
+        } else {
+          // 🔵 Visiteur → session_id obligatoire
+          const currentSessionId = localStorage.getItem("session_id");
+          if (!currentSessionId) return;
+          url += `?session_id=${currentSessionId}`;
+        }
+  
+        const response = await api.get(url, config);
+        setCartItems(response.data.items || []);
+        setCartTotal(response.data.sum_total || 0);
+      } catch (err) {
+        console.error("Erreur panier:", err.message);
+        if (err.response?.status === 404) {
+          setCartItems([]);
+          setCartTotal(0);
+        }
+      } finally {
+        setLoading(false);
       }
     };
   
-    api.get("get_cart/", config)
-      .then(res => {
-        console.log("Panier:", res.data);
-        setCartItems(res.data.items);
-        setCartTotal(res.data.sum_total);
-      })
-      .catch(err => {
-        console.log("Erreur panier:", err.message);
-      });
+    fetchCart();
   }, []);
   
+  
+  const updateItemQuantity = async (itemId, newQty) => {
+    try {
+      const payload = {
+        item_id: itemId,
+        quantity: newQty,
+        session_id: !isAuthenticated ? sessionId : undefined
+      };
 
-  const updateItemQuantity = (itemId, newQty) => {
-    api.patch("update_quantity/", {
-      item_id: itemId,
-      quantity: newQty,
-    })
-    .then(res => {
-      const updatedItem = res.data.data;
-      const updatedItems = cartItems.map(it =>
-        it.id === itemId ? { ...it, quantity: updatedItem.quantity } : it
+      await api.patch("update_quantity/", payload);
+
+      const updatedItems = cartItems.map(item => 
+        item.id === itemId ? { ...item, quantity: newQty } : item
       );
+      
       setCartItems(updatedItems);
-
-      const newTotal = updatedItems.reduce(
-        (acc, it) => acc + it.product.price * it.quantity,
-        0
-      );
-      setCartTotal(newTotal);
-    })
-    .catch(err => console.log("Erreur maj quantité:", err));
-  };
-
-  const deleteCartItem = (itemId) => {
-    const confirmDelete = window.confirm("Supprimer l'article ?");
-    if (confirmDelete) {
-      api.post("delete_cartitem/", { item_id: itemId })
-        .then(res => {
-          console.log(res.data);
-          const updatedItems = cartItems.filter(it => it.id !== itemId);
-          setCartItems(updatedItems);
-
-          const newTotal = updatedItems.reduce(
-            (acc, it) => acc + it.product.price * it.quantity,
-            0
-          );
-          setCartTotal(newTotal);
-        })
-        .catch(err => {
-          console.log("Erreur suppression:", err.message);
-        });
+      updateTotal(updatedItems);
+    } catch (err) {
+      console.error("Erreur maj quantité:", err);
     }
   };
+
+  const deleteCartItem = async (itemId) => {
+    if (!window.confirm("Supprimer l'article ?")) return;
+
+    try {
+      await api.post("delete_cartitem/", { 
+        item_id: itemId,
+        session_id: !isAuthenticated ? sessionId : undefined
+      });
+
+      const updatedItems = cartItems.filter(item => item.id !== itemId);
+      setCartItems(updatedItems);
+      updateTotal(updatedItems);
+    } catch (err) {
+      console.error("Erreur suppression:", err.message);
+    }
+  };
+
+  const updateTotal = (items) => {
+    const newTotal = items.reduce(
+      (acc, item) => acc + item.product.price * item.quantity,
+      0
+    );
+    setCartTotal(newTotal);
+  };
+
+  if (loading) return <div>Loading...</div>;
+
   return (
     <>
       <div className="cart-container">
@@ -88,7 +127,7 @@ const CartPage = () => {
                   <div className="cart-item-details">
                     <h3 className='product-name'>{item.product.name}</h3>
                     <p className='product-price'>
-                      ${parseFloat(item.product.price * item.quantity).toFixed(2)} (Unit: ${parseFloat(item.product.price).toFixed(2)})
+                      ${(Number(item.product.price) * item.quantity).toFixed(2)} (Unit: ${Number(item.product.price).toFixed(2)})
                     </p>
 
                     <div className="cart-item-quantity">
@@ -116,11 +155,20 @@ const CartPage = () => {
               <p>Shipping: <span>Calculated on checkout</span></p>
               <hr className="cart-summary-divider" />
               <p>Total: <span>${cartTotal.toFixed(2)}</span></p>
-              <hr className="cart-summary-divider" />
             </div>
 
-            <button className="checkout-button" onClick={() => navigate("/checkout")}>CHECKOUT NOW</button>
-            <button className="continue-shopping" onClick={() => navigate("/")}>CONTINUE SHOPPING</button>
+            <button 
+  className="checkout-button" 
+  onClick={() => navigate("/checkout")}
+>
+  CHECKOUT NOW
+</button>
+
+
+
+            <button className="continue-shopping" onClick={() => navigate("/")}>
+              CONTINUE SHOPPING
+            </button>
           </div>
         </div>
       </div>

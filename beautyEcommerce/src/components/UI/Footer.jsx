@@ -6,9 +6,7 @@ function Footer() {
   return (
     <footer className="footer">
       <div className="newsletter">
-        <p>
-          Subscribe to our newsletter and get <strong>10% off</strong>
-        </p>
+        
         <div className="newsletter-inputs">
           <input type="text" placeholder="Name" />
           <input type="email" placeholder="Email address" />

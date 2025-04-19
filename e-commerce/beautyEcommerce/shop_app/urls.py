@@ -64,6 +64,7 @@ urlpatterns = [
     path('api/admin/commandes/<uuid:id>/', AdminCommandeDetailView.as_view(), name='admin-commande-detail'),
     path('api/admin/commandes/<uuid:id>/status/', AdminUpdateCommandeStatusView.as_view(), name='admin-update-commande-status'),
     path('product_detail/<slug:slug>/commentaires/', CommentairesProduitAPIView.as_view(), name='commentaires-produit'),
+    
 
 
 

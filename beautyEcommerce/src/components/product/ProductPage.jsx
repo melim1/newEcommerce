@@ -7,6 +7,7 @@ import Footer from "../UI/Footer";
 import InstaSection from "../UI/InstaSection";
 import Header from "../UI/Header";
 import MiniCarte from "../cart/MiniCarte";
+import { v4 as uuidv4 } from 'uuid';
 
 const ProductPage = () => {
   const { slug } = useParams();
@@ -123,51 +124,57 @@ const ProductPage = () => {
     }
   };
 
-  const add_item = () => {
-    const newItem = {
+  const addToCart = () => {
+    const payload = {
       product_id: product.id,
-      quantite: quantity,
-      cart_code: cart_code,
+      quantity: quantity
     };
-
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-
-    api.post("create_client_if_not_exists/", {}, config)
-      .then(() => {
-        api.post("add_item/", newItem, config)
-          .then(() => {
-            setMiniCartItems(prevItems => {
-              const existingIndex = prevItems.findIndex(item => item.id === product.id);
-              if (existingIndex !== -1) {
-                // Produit déjà présent, on met à jour la quantité
-                const updatedItems = [...prevItems];
-                updatedItems[existingIndex] = {
-                  ...updatedItems[existingIndex],
-                  quantite: updatedItems[existingIndex].quantite + quantity
-                };
-                return updatedItems;
-              } else {
-                // Nouveau produit
-                return [...prevItems, { ...product, quantite: quantity }];
-              }
-            });
   
-            setShowMiniCart(true);
-          })
-          .catch(err => {
-            console.log(err.response?.data || err.message);
-            alert("Erreur lors de l'ajout au panier.");
-          });
+    // Ajouter session_id si visiteur (non authentifié)
+    if (!token) {
+      payload.session_id = localStorage.getItem("session_id");
+      if (!payload.session_id) {
+        // Créer un nouveau session_id si inexistant
+        const newSessionId = uuidv4();
+        localStorage.setItem("session_id", newSessionId);
+        payload.session_id = newSessionId;
+      }
+    }
+  
+    const config = token ? {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    } : {};
+  
+    api.post("add_item/", payload, config)
+      .then(response => {
+        // Mise à jour du mini panier
+        setMiniCartItems(prevItems => {
+          const existingItem = prevItems.find(item => item.product.id === product.id);
+          if (existingItem) {
+            return prevItems.map(item => 
+              item.product.id === product.id 
+                ? { ...item, quantity: item.quantity + quantity }
+                : item
+            );
+          } else {
+            return [...prevItems, {
+              id: response.data.id,
+              product: product,
+              quantity: quantity
+            }];
+          }
+        });
+        
+        setShowMiniCart(true);
       })
-      .catch(() => {
-        alert("Vous devez être connecté en tant que client.");
+      .catch(error => {
+        console.error("Erreur ajout au panier:", error.response?.data || error.message);
+        alert("Erreur lors de l'ajout au panier");
       });
   };
-
+  
   const toggleDropdown = (index) => {
     setOpenDropdown(openDropdown === index ? null : index);
   };
@@ -200,9 +207,9 @@ const ProductPage = () => {
             </div>
 
             <div className="product-actions">
-              <button className="add-to-cart" onClick={add_item}>
-                ADD TO CART
-              </button>
+            <button className="add-to-cart" onClick={addToCart}>
+              ADD TO CART
+            </button>
 
               <div className="product-details-sections">
                 <div className="dropdown">
@@ -230,7 +237,7 @@ const ProductPage = () => {
               similarProducts.slice(0, 4).map((item) => (
                 <div key={item.id} className="product-cards">
                   <Link to={`/products/${item.slug}`} className="product-link">
-                    <img src={`http://127.0.0.1:8000${item.image}`} alt={item.name} />
+                    <img src={item.image} alt={item.name} />
                     <h4>{item.name}</h4>
                     <p>{item.price}€</p>
                   </Link>

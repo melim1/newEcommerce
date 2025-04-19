@@ -28,6 +28,7 @@
 .text-section h3 {
     font-size: 16px;
     font-weight: normal;
+    background-color: transparent;
 }
 
 /* Bouton mieux centré */

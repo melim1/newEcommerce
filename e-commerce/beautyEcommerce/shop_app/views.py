@@ -18,6 +18,7 @@ from .permissions import IsAdmin
 from .permissions import IsClient
 from rest_framework.parsers import MultiPartParser, FormParser
 import datetime
+from uuid import uuid4
 
 
 # Create your views here.
@@ -50,68 +51,133 @@ def create_client_if_not_exists(request):
         return Response({"message": "Client created."}, status=201)
     return Response({"message": "Client already exists."}, status=200)
 
-
 @api_view(["POST"])
 def add_item(request):
     try:
-        cart_code = request.data.get("cart_code")
         product_id = request.data.get("product_id")
-        user = request.user
-
-        # Si l'utilisateur est authentifié
-        if user.is_authenticated:
-            try:
-                client = Client.objects.get(utilisateur=user)
-            except Client.DoesNotExist:
-                return Response({"error": "You must be a registered Client to add items to the cart."}, status=400)
-
-            # Éviter le problème de doublons de panier
-            carts = Cart.objects.filter(user=client, paid=False)
-            if carts.count() > 1:
-                cart = carts.latest('created_at')
-                carts.exclude(id=cart.id).delete()
-            else:
-                cart = carts.first()
-
-            if not cart:
-                cart = Cart.objects.create(user=client, paid=False, cart_code=str(int(datetime.datetime.now().timestamp())))
-
+        quantity = int(request.data.get("quantity", 1))
+        
+        # Pour utilisateur authentifié
+        if request.user.is_authenticated:
+            client = Client.objects.get(utilisateur=request.user)
+            cart, created = Cart.objects.get_or_create(
+                user=client, 
+                paid=False,
+                defaults={'cart_code': uuid4()}
+            )
+        # Pour visiteur
         else:
-            # Utilisateur non connecté, panier visiteur
-            if not cart_code:
-                return Response({"error": "cart_code is required"}, status=400)
-            cart, created = Cart.objects.get_or_create(cart_code=cart_code, paid=False)
+            session_id = request.data.get("session_id")
+            if not session_id:
+                return Response({"error": "session_id is required for anonymous users"}, status=400)
+            
+            visiteur, created = Visiteur.objects.get_or_create(session_id=session_id)
+            cart, created = Cart.objects.get_or_create(
+                visiteur=visiteur, 
+                paid=False,
+                defaults={'cart_code': uuid4()}
+            )
 
-        # Vérifier le produit
+        # Vérifier et obtenir le produit
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
             return Response({"error": "Product not found"}, status=404)
 
-        # Ajouter ou mettre à jour l'article dans le panier
-        cartitem, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        cartitem.quantity = request.data.get("quantite", 1)
-        cartitem.save()
+        # Ajouter ou mettre à jour l'article
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart, 
+            product=product,
+            defaults={'quantity': quantity}
+        )
+        
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
 
-        serializer = CartItemSerializer(cartitem)
-        return Response({"data": serializer.data, "message": "Cart item created successfully"}, status=201)
+        serializer = CartItemSerializer(cart_item)
+        return Response(serializer.data, status=201)
 
     except Exception as e:
         return Response({"error": str(e)}, status=400)
-
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def get_cart(request):
     try:
-        client = Client.objects.get(utilisateur=request.user)
-        cart = Cart.objects.filter(user=client, paid=False).first()
-        if not cart:
-            return Response({"items": [], "sum_total": 0, "num_of_items": 0})
+        # Pour utilisateur authentifié
+        if request.user.is_authenticated:
+            client = Client.objects.get(utilisateur=request.user)
+            cart, created = Cart.objects.get_or_create(user=client, paid=False)
+        # Pour visiteur
+        else:
+            session_id = request.GET.get('session_id')
+            if not session_id:
+                return Response({"error": "session_id is required for anonymous users"}, status=400)
+            
+            visiteur, created = Visiteur.objects.get_or_create(session_id=session_id)
+            cart, created = Cart.objects.get_or_create(visiteur=visiteur, paid=False)
+        
         serializer = CartSerializer(cart)
         return Response(serializer.data)
-    except Client.DoesNotExist:
-        return Response({"error": "Client does not exist."}, status=400)
+    
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
 
+@api_view(['PATCH'])
+def update_quantity(request):
+    try:
+        item_id = request.data.get('item_id')
+        quantity = int(request.data.get('quantity'))
+        
+        if not item_id or quantity < 1:
+            return Response({"error": "Invalid parameters"}, status=400)
+        
+        # Trouver l'item
+        try:
+            if request.user.is_authenticated:
+                cart_item = CartItem.objects.get(id=item_id, cart__user__utilisateur=request.user)
+            else:
+                session_id = request.data.get('session_id')
+                if not session_id:
+                    return Response({"error": "session_id required for anonymous users"}, status=400)
+                cart_item = CartItem.objects.get(id=item_id, cart__visiteur__session_id=session_id)
+        except CartItem.DoesNotExist:
+            return Response({"error": "Item not found in cart"}, status=404)
+        
+        # Mettre à jour la quantité
+        cart_item.quantity = quantity
+        cart_item.save()
+        
+        # Retourner les données mises à jour
+        serializer = CartItemSerializer(cart_item)
+        return Response({"data": serializer.data})
+    
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['POST'])
+def delete_cartitem(request):
+    try:
+        item_id = request.data.get('item_id')
+        
+        if not item_id:
+            return Response({"error": "item_id is required"}, status=400)
+        
+        # Supprimer l'item
+        if request.user.is_authenticated:
+            cart_item = CartItem.objects.get(id=item_id, cart__user__utilisateur=request.user)
+        else:
+            session_id = request.data.get('session_id')
+            if not session_id:
+                return Response({"error": "session_id required for anonymous users"}, status=400)
+            cart_item = CartItem.objects.get(id=item_id, cart__visiteur__session_id=session_id)
+        
+        cart_item.delete()
+        return Response({"message": "Item deleted successfully"})
+    
+    except CartItem.DoesNotExist:
+        return Response({"error": "Item not found"}, status=404)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
 @api_view(['PATCH'])
 def update_quantity(request):
     try:
@@ -510,3 +576,4 @@ class UserInfoView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+

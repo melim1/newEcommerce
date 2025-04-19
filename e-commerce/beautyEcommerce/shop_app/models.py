@@ -112,6 +112,7 @@ class Product(models.Model):
 class Cart(models.Model):
     cart_code = models.CharField(max_length=11, unique=True)
     user=models.ForeignKey(Client, on_delete=models.CASCADE,  null=True, blank=True)
+    visiteur = models.ForeignKey(Visiteur, on_delete=models.CASCADE, null=True, blank=True)  # Visiteur lié au panier
     paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
     modified_at = models.DateTimeField(auto_now=True,blank=True, null=True)

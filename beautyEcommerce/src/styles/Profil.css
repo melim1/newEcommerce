@@ -156,6 +156,9 @@
     margin-bottom: 5px;
     background-color: transparent;
 }
+.form-group div{
+  background-color: transparent;
+}
 
 .form-group input {
     padding: 10px;
