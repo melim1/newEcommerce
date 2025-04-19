@@ -27,6 +27,7 @@ const CartPage = () => {
     const fetchCart = async () => {
       try {
         setLoading(true);
+  
         const token = localStorage.getItem("access_token");
         const role = localStorage.getItem("user_role")?.toUpperCase();
   
@@ -34,14 +35,17 @@ const CartPage = () => {
         let config = {};
   
         if (token && role === "CLIENT") {
-          // 🟢 Client connecté → pas de session_id
+          // Authenticated user → no session_id
           config.headers = {
             Authorization: `Bearer ${token}`
           };
         } else {
-          // 🔵 Visiteur → session_id obligatoire
+          // Visitor → session_id is required
           const currentSessionId = localStorage.getItem("session_id");
-          if (!currentSessionId) return;
+          if (!currentSessionId) {
+            console.error("Error: session_id is missing for the visitor.");
+            return;
+          }
           url += `?session_id=${currentSessionId}`;
         }
   
@@ -49,7 +53,7 @@ const CartPage = () => {
         setCartItems(response.data.items || []);
         setCartTotal(response.data.sum_total || 0);
       } catch (err) {
-        console.error("Erreur panier:", err.message);
+        console.error("Cart error:", err.response?.data || err.message);
         if (err.response?.status === 404) {
           setCartItems([]);
           setCartTotal(0);
@@ -61,7 +65,6 @@ const CartPage = () => {
   
     fetchCart();
   }, []);
-  
   
   const updateItemQuantity = async (itemId, newQty) => {
     try {
@@ -79,6 +82,13 @@ const CartPage = () => {
       
       setCartItems(updatedItems);
       updateTotal(updatedItems);
+      if (!isAuthenticated) {
+        const formatted = updatedItems.map(item => ({
+          product_id: item.product.id,
+          quantity: item.quantity
+        }));
+        localStorage.setItem("visitor_cart", JSON.stringify(formatted));
+      }
     } catch (err) {
       console.error("Erreur maj quantité:", err);
     }
@@ -157,12 +167,21 @@ const CartPage = () => {
               <p>Total: <span>${cartTotal.toFixed(2)}</span></p>
             </div>
 
-            <button 
-  className="checkout-button" 
-  onClick={() => navigate("/checkout")}
->
-  CHECKOUT NOW
-</button>
+            <button
+                className="checkout-button"
+                onClick={() => {
+                  if (isAuthenticated) {
+                    navigate("/checkout");
+                  } else {
+                    alert("Veuillez vous connecter ou vous inscrire pour finaliser votre commande.");
+                    localStorage.setItem("redirect_after_login", "/checkout");
+                    navigate("/login"); // ou "/register", ou une modal selon ton UX
+                  }
+                }}
+              >
+                CHECKOUT NOW
+            </button>
+
 
 
 

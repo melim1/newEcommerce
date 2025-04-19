@@ -124,57 +124,69 @@ const ProductPage = () => {
     }
   };
 
+
   const addToCart = () => {
     const payload = {
       product_id: product.id,
-      quantity: quantity
+      quantity: quantity,
     };
   
-    // Ajouter session_id si visiteur (non authentifié)
+    // Cas visiteur (non connecté)
     if (!token) {
-      payload.session_id = localStorage.getItem("session_id");
-      if (!payload.session_id) {
-        // Créer un nouveau session_id si inexistant
-        const newSessionId = uuidv4();
-        localStorage.setItem("session_id", newSessionId);
-        payload.session_id = newSessionId;
+      // Génère un session_id s'il n'existe pas
+      let sessionId = localStorage.getItem("session_id");
+      if (!sessionId) {
+        sessionId = uuidv4();
+        localStorage.setItem("session_id", sessionId);
       }
+      payload.session_id = sessionId;
+  
+      // Ajout localStorage
+      let visitorCart = JSON.parse(localStorage.getItem("visitor_cart")) || [];
+
+const existingIndex = visitorCart.findIndex(item => item.product_id === product.id);
+
+if (existingIndex !== -1) {
+  visitorCart[existingIndex].quantity += quantity;
+} else {
+  visitorCart.push({
+    product_id: product.id,
+    quantity: quantity,
+  });
+}
+
+localStorage.setItem("visitor_cart", JSON.stringify(visitorCart));
+      console.log("Payload envoyé :", payload);
+
+      // Enregistrement côté backend
+      api.post("add_item/", payload)
+        .then(response => {
+          alert("Produit ajouté au panier !");
+        })
+        .catch(error => {
+          console.error("Erreur ajout panier visiteur:", error.response?.data || error.message);
+        });
+  
+      return;
     }
   
-    const config = token ? {
+    // Cas connecté (utilisateur avec token)
+    const config = {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
-    } : {};
+        Authorization: `Bearer ${token}`,
+      },
+    };
   
     api.post("add_item/", payload, config)
       .then(response => {
-        // Mise à jour du mini panier
-        setMiniCartItems(prevItems => {
-          const existingItem = prevItems.find(item => item.product.id === product.id);
-          if (existingItem) {
-            return prevItems.map(item => 
-              item.product.id === product.id 
-                ? { ...item, quantity: item.quantity + quantity }
-                : item
-            );
-          } else {
-            return [...prevItems, {
-              id: response.data.id,
-              product: product,
-              quantity: quantity
-            }];
-          }
-        });
-        
-        setShowMiniCart(true);
+        alert("Produit ajouté au panier !");
       })
       .catch(error => {
         console.error("Erreur ajout au panier:", error.response?.data || error.message);
-        alert("Erreur lors de l'ajout au panier");
       });
   };
   
+ 
   const toggleDropdown = (index) => {
     setOpenDropdown(openDropdown === index ? null : index);
   };

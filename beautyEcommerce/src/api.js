@@ -5,6 +5,9 @@ const api = axios.create({
 
     
 })
+export const mergeCart = (items) => {
+  return api.post("/merge_cart/", { items });
+};
 
 // Intercepteur pour ajouter automatiquement le token
 api.interceptors.request.use(
@@ -43,6 +46,7 @@ api.interceptors.request.use(
       }
       return Promise.reject(error);
     }
+    
   );
 
 export default api

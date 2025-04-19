@@ -25,7 +25,8 @@ from .views import (
     AdminCommandeListView,
     AdminCommandeDetailView,
     AdminUpdateCommandeStatusView,
-    CommentairesProduitAPIView
+    CommentairesProduitAPIView,
+    merge_cart
   
     
 )
@@ -64,6 +65,10 @@ urlpatterns = [
     path('api/admin/commandes/<uuid:id>/', AdminCommandeDetailView.as_view(), name='admin-commande-detail'),
     path('api/admin/commandes/<uuid:id>/status/', AdminUpdateCommandeStatusView.as_view(), name='admin-update-commande-status'),
     path('product_detail/<slug:slug>/commentaires/', CommentairesProduitAPIView.as_view(), name='commentaires-produit'),
+    path('merge_cart/', merge_cart, name='merge_cart'),
+    path('transfer_visitor_cart/', views.transfer_visitor_cart, name='transfer_visitor_cart'),
+    
+
     
 
 

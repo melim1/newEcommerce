@@ -6,6 +6,8 @@ from django.dispatch import receiver
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
+import string
+import random
 
 class UtilisateurManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -119,6 +121,17 @@ class Cart(models.Model):
 
     def __str__(self):
         return self.cart_code
+    
+    def save(self, *args, **kwargs):
+        if not self.cart_code:
+            self.cart_code = self.generate_unique_code()
+        super().save(*args, **kwargs)
+
+    def generate_unique_code(self):
+        while True:
+            code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=11))
+            if not Cart.objects.filter(cart_code=code).exists():
+                return code
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)

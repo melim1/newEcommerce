@@ -20,6 +20,12 @@ from rest_framework.parsers import MultiPartParser, FormParser
 import datetime
 from uuid import uuid4
 
+import random
+import string
+
+def generate_cart_code(length=11):
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+
 
 # Create your views here.
 class ProductListView(generics.ListAPIView):
@@ -51,6 +57,7 @@ def create_client_if_not_exists(request):
         return Response({"message": "Client created."}, status=201)
     return Response({"message": "Client already exists."}, status=200)
 
+
 @api_view(["POST"])
 def add_item(request):
     try:
@@ -63,7 +70,7 @@ def add_item(request):
             cart, created = Cart.objects.get_or_create(
                 user=client, 
                 paid=False,
-                defaults={'cart_code': uuid4()}
+                defaults={'cart_code': generate_cart_code()}  # Générer un cart_code valide
             )
         # Pour visiteur
         else:
@@ -75,7 +82,7 @@ def add_item(request):
             cart, created = Cart.objects.get_or_create(
                 visiteur=visiteur, 
                 paid=False,
-                defaults={'cart_code': uuid4()}
+                defaults={'cart_code': generate_cart_code()}  # Générer un cart_code valide
             )
 
         # Vérifier et obtenir le produit
@@ -103,22 +110,23 @@ def add_item(request):
 @api_view(['GET'])
 def get_cart(request):
     try:
-        # Pour utilisateur authentifié
         if request.user.is_authenticated:
             client = Client.objects.get(utilisateur=request.user)
-            cart, created = Cart.objects.get_or_create(user=client, paid=False)
-        # Pour visiteur
+            cart, _ = Cart.objects.get_or_create(user=client, paid=False)
         else:
             session_id = request.GET.get('session_id')
             if not session_id:
                 return Response({"error": "session_id is required for anonymous users"}, status=400)
-            
-            visiteur, created = Visiteur.objects.get_or_create(session_id=session_id)
-            cart, created = Cart.objects.get_or_create(visiteur=visiteur, paid=False)
-        
+            visiteur = Visiteur.objects.get(session_id=session_id)
+            cart, _ = Cart.objects.get_or_create(visiteur=visiteur, paid=False)
+
         serializer = CartSerializer(cart)
-        return Response(serializer.data)
-    
+        return Response(serializer.data, status=200)
+
+    except Client.DoesNotExist:
+        return Response({"error": "Client not found"}, status=404)
+    except Visiteur.DoesNotExist:
+        return Response({"error": "Invalid session_id"}, status=400)
     except Exception as e:
         return Response({"error": str(e)}, status=400)
 
@@ -577,3 +585,78 @@ class UserInfoView(generics.RetrieveAPIView):
     def get_object(self):
         return self.request.user
 
+
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def merge_cart(request):
+    try:
+        user = request.user
+        client = Client.objects.get(utilisateur=user)
+        cart, created = Cart.objects.get_or_create(user=client, paid=False)
+
+        # Récupérer les items du panier visiteur
+        visitor_items = request.data.get("items", [])
+        for item in visitor_items:
+            product_id = item.get("product_id")
+            quantity = item.get("quantity", 1)
+
+            # Vérifier si le produit existe déjà dans le panier utilisateur
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=cart,
+                product_id=product_id,
+                defaults={"quantity": quantity},
+            )
+            if not created:
+                cart_item.quantity += quantity
+                cart_item.save()
+
+        return Response({"message": "Panier fusionné avec succès."}, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+    
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def transfer_visitor_cart(request):
+    session_id = request.data.get("session_id")
+    items = request.data.get("items", [])
+
+    if not session_id or not items:
+        return Response({"error": "Session ID et items requis."}, status=400)
+
+    try:
+        visiteur = Visiteur.objects.get(session_id=session_id)
+        client = Client.objects.get(utilisateur=request.user)
+
+        # Récupérer ou créer le panier du client
+        cart, _ = Cart.objects.get_or_create(user=client, paid=False, defaults={"cart_code": generate_cart_code()})
+
+        for item in items:
+            product_id = item.get("product_id")
+            quantity = item.get("quantity", 1)
+
+            try:
+                product = Product.objects.get(id=product_id)
+            except Product.DoesNotExist:
+                continue  # On ignore si le produit n’existe pas
+
+            # Ajouter ou mettre à jour les articles
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=cart,
+                product=product,
+                defaults={"quantity": quantity}
+            )
+
+            if not created:
+                cart_item.quantity += quantity
+                cart_item.save()
+
+        return Response({"message": "Panier visiteur transféré avec succès."})
+
+    except Visiteur.DoesNotExist:
+        return Response({"error": "Visiteur introuvable."}, status=404)
+    except Client.DoesNotExist:
+        return Response({"error": "Client introuvable."}, status=404)
