@@ -131,9 +131,15 @@ const ProductPage = () => {
       quantity: quantity,
     };
   
-    // Cas visiteur (non connecté)
+    const newItem = {
+      product: {
+        ...product,
+      },
+      quantity: quantity,
+    };
+  
+    // Cas visiteur
     if (!token) {
-      // Génère un session_id s'il n'existe pas
       let sessionId = localStorage.getItem("session_id");
       if (!sessionId) {
         sessionId = uuidv4();
@@ -143,25 +149,20 @@ const ProductPage = () => {
   
       // Ajout localStorage
       let visitorCart = JSON.parse(localStorage.getItem("visitor_cart")) || [];
-
-const existingIndex = visitorCart.findIndex(item => item.product_id === product.id);
-
-if (existingIndex !== -1) {
-  visitorCart[existingIndex].quantity += quantity;
-} else {
-  visitorCart.push({
-    product_id: product.id,
-    quantity: quantity,
-  });
-}
-
-localStorage.setItem("visitor_cart", JSON.stringify(visitorCart));
-      console.log("Payload envoyé :", payload);
-
-      // Enregistrement côté backend
+      const existingIndex = visitorCart.findIndex(item => item.product_id === product.id);
+  
+      if (existingIndex !== -1) {
+        visitorCart[existingIndex].quantity += quantity;
+      } else {
+        visitorCart.push({ product_id: product.id, quantity: quantity });
+      }
+      localStorage.setItem("visitor_cart", JSON.stringify(visitorCart));
+  
+      // Appel backend + mini panier
       api.post("add_item/", payload)
-        .then(response => {
-          alert("Produit ajouté au panier !");
+        .then(() => {
+          setMiniCartItems([newItem]);
+          setShowMiniCart(true);
         })
         .catch(error => {
           console.error("Erreur ajout panier visiteur:", error.response?.data || error.message);
@@ -170,7 +171,7 @@ localStorage.setItem("visitor_cart", JSON.stringify(visitorCart));
       return;
     }
   
-    // Cas connecté (utilisateur avec token)
+    // Cas connecté
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -178,13 +179,15 @@ localStorage.setItem("visitor_cart", JSON.stringify(visitorCart));
     };
   
     api.post("add_item/", payload, config)
-      .then(response => {
-        alert("Produit ajouté au panier !");
+      .then(() => {
+        setMiniCartItems([newItem]);
+        setShowMiniCart(true);
       })
       .catch(error => {
         console.error("Erreur ajout au panier:", error.response?.data || error.message);
       });
   };
+  
   
  
   const toggleDropdown = (index) => {

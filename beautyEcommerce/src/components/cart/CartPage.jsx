@@ -5,6 +5,19 @@ import Footer from '../UI/Footer';
 import Header from '../UI/Header';
 import api from '../../api';
 import { v4 as uuidv4 } from 'uuid';
+import { jwtDecode } from 'jwt-decode';
+
+const isAuthenticated = () => {
+  const token = localStorage.getItem("access_token");
+  if (!token) return false;
+  try {
+    const decoded = jwtDecode(token);
+    const now = Date.now() / 1000;
+    return decoded.exp > now;
+  } catch {
+    return false;
+  }
+};
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -13,7 +26,6 @@ const CartPage = () => {
   const [loading, setLoading] = useState(true);
   const [sessionId, setSessionId] = useState(localStorage.getItem("session_id"));
   const userRole = localStorage.getItem("user_role");
-  const isAuthenticated = !!localStorage.getItem("token");
 
   useEffect(() => {
     if (!sessionId) {
@@ -27,20 +39,18 @@ const CartPage = () => {
     const fetchCart = async () => {
       try {
         setLoading(true);
-  
+
         const token = localStorage.getItem("access_token");
         const role = localStorage.getItem("user_role")?.toUpperCase();
-  
+
         let url = 'get_cart/';
         let config = {};
-  
+
         if (token && role === "CLIENT") {
-          // Authenticated user → no session_id
           config.headers = {
             Authorization: `Bearer ${token}`
           };
         } else {
-          // Visitor → session_id is required
           const currentSessionId = localStorage.getItem("session_id");
           if (!currentSessionId) {
             console.error("Error: session_id is missing for the visitor.");
@@ -48,7 +58,7 @@ const CartPage = () => {
           }
           url += `?session_id=${currentSessionId}`;
         }
-  
+
         const response = await api.get(url, config);
         setCartItems(response.data.items || []);
         setCartTotal(response.data.sum_total || 0);
@@ -62,27 +72,27 @@ const CartPage = () => {
         setLoading(false);
       }
     };
-  
+
     fetchCart();
   }, []);
-  
+
   const updateItemQuantity = async (itemId, newQty) => {
     try {
       const payload = {
         item_id: itemId,
         quantity: newQty,
-        session_id: !isAuthenticated ? sessionId : undefined
+        session_id: !isAuthenticated() ? sessionId : undefined
       };
 
       await api.patch("update_quantity/", payload);
 
-      const updatedItems = cartItems.map(item => 
+      const updatedItems = cartItems.map(item =>
         item.id === itemId ? { ...item, quantity: newQty } : item
       );
-      
+
       setCartItems(updatedItems);
       updateTotal(updatedItems);
-      if (!isAuthenticated) {
+      if (!isAuthenticated()) {
         const formatted = updatedItems.map(item => ({
           product_id: item.product.id,
           quantity: item.quantity
@@ -98,9 +108,9 @@ const CartPage = () => {
     if (!window.confirm("Supprimer l'article ?")) return;
 
     try {
-      await api.post("delete_cartitem/", { 
+      await api.post("delete_cartitem/", {
         item_id: itemId,
-        session_id: !isAuthenticated ? sessionId : undefined
+        session_id: !isAuthenticated() ? sessionId : undefined
       });
 
       const updatedItems = cartItems.filter(item => item.id !== itemId);
@@ -168,22 +178,19 @@ const CartPage = () => {
             </div>
 
             <button
-                className="checkout-button"
-                onClick={() => {
-                  if (isAuthenticated) {
-                    navigate("/checkout");
-                  } else {
-                    alert("Veuillez vous connecter ou vous inscrire pour finaliser votre commande.");
-                    localStorage.setItem("redirect_after_login", "/checkout");
-                    navigate("/login"); // ou "/register", ou une modal selon ton UX
-                  }
-                }}
-              >
-                CHECKOUT NOW
+              className="checkout-button"
+              onClick={() => {
+                if (isAuthenticated()) {
+                  navigate("/checkout");
+                } else {
+                  alert("Veuillez vous connecter ou vous inscrire pour finaliser votre commande.");
+                  localStorage.setItem("redirect_after_login", "/checkout");
+                  navigate("/login");
+                }
+              }}
+            >
+              CHECKOUT NOW
             </button>
-
-
-
 
             <button className="continue-shopping" onClick={() => navigate("/")}>
               CONTINUE SHOPPING
