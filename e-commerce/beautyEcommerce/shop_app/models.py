@@ -198,6 +198,9 @@ class Notification(models.Model):
     utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name="notifications")
     message = models.TextField()
     dateEnvoi = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    type = models.CharField(max_length=50, default='info')  # info, success, warning, error
+
 
     def __str__(self):
         return f"Notification pour {self.utilisateur.nom} - {self.message}"

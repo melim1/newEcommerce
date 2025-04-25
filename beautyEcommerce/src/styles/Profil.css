@@ -203,3 +203,47 @@
   background-color: #5a3d31;
 }
 
+/* Styles généraux pour les notifications */
+.notifications {
+  background-color: transparent;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.notification-list {
+  list-style: none;
+  padding: 0;
+  background-color: transparent;
+}
+
+.notification-item {
+  background-color: #fff;
+  padding: 15px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.notification-item.read {
+  background-color: #f5f5f5;
+  color: #aaa;
+  
+}
+
+.notification-item .message {
+  font-size: 16px;
+  color: #3b241c;
+  margin-bottom: 5px;
+  background-color: transparent;
+}
+
+.notification-item .date {
+  font-size: 12px;
+  color: #888;
+  background-color: transparent;
+}
+
+
+

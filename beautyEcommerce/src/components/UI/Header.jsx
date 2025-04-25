@@ -10,7 +10,7 @@ const Header = ({ toggleSidebar }) => {
       <div className="menu-icon" onClick={toggleSidebar}>
         ☰
       </div>
-      <h1 className="logo">Touché Beauty</h1>
+      <h1 className="logo">RosaLuminosa</h1>
       
       {/* Conteneur pour les icônes */}
       <div className="header-icons">

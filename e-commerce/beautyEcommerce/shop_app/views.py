@@ -19,6 +19,7 @@ from .permissions import IsClient
 from rest_framework.parsers import MultiPartParser, FormParser
 import datetime
 from uuid import uuid4
+from rest_framework.exceptions import NotFound
 
 import random
 import string
@@ -231,6 +232,13 @@ def passer_commande(request):
     serializer = CreateCommandeSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         commande = serializer.save()
+
+        # Créer une notification pour l'utilisateur
+        message = f"Votre commande #{commande.id} a été reçue avec succès."
+        notification = Notification(utilisateur=request.user, message=message)
+        notification.save()  # Enregistrer la notification dans la base de données
+
+
         return Response({'message': 'Commande créée avec succès.', 'commande_id': str(commande.id)})
     return Response(serializer.errors, status=400)
 
@@ -274,6 +282,17 @@ def effectuer_paiement(request):
         # Marquer la commande comme payée
         commande.status = 'PAID'
         commande.save()
+         
+          # Créer une notification pour l'utilisateur
+        notification_message = f"Votre commande #{commande.id} a été payée avec succès."
+        print(f"Notification: {notification_message}")
+
+        Notification.objects.create(
+            utilisateur=request.user,  # L'utilisateur connecté
+            message=f"Votre commande #{commande.id} a été payée avec succès.",
+            dateEnvoi=commande.dateCommande  # La date de la commande
+        )
+
 
         # Retourner une réponse de succès
         return Response({
@@ -386,9 +405,9 @@ class CommentairesProduitAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-class NotificationListView(generics.ListAPIView):
-    queryset = Notification.objects.all()
-    serializer_class = NotificationSerializer
+
+
+    
 @api_view(['GET'])
 def produits_en_avant(request):
     produits = list(Product.objects.filter(estDisponible=True))  
@@ -660,3 +679,29 @@ def transfer_visitor_cart(request):
         return Response({"error": "Visiteur introuvable."}, status=404)
     except Client.DoesNotExist:
         return Response({"error": "Client introuvable."}, status=404)
+
+
+
+class NotificationListView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(utilisateur=self.request.user).order_by('-dateEnvoi')
+
+
+class NotificationMarkAsReadView(APIView):
+    """
+    Marque une notification comme lue
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            notification = Notification.objects.get(pk=pk, utilisateur=request.user)
+        except Notification.DoesNotExist:
+            raise NotFound("Notification introuvable")
+
+        notification.is_read = True
+        notification.save()
+        return Response({'status': 'Notification marquée comme lue'}, status=status.HTTP_200_OK)

@@ -210,7 +210,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Notification
-        fields = ['id', 'utilisateur', 'message', 'dateEnvoi']
+        fields = '__all__'
         
 class DetailedProductSerializer(serializers.ModelSerializer):
     similar_products = serializers.SerializerMethodField()

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import "../../styles/Profil.css";
-import { FiUser, FiPackage, FiHeart, FiLogOut } from "react-icons/fi";
+import { FiUser, FiPackage, FiHeart, FiLogOut, FiBell } from "react-icons/fi";
 import Footer from '../UI/Footer';
 import Header from '../UI/Header';
 import api from "../../api";
-import ProfilEdit from './ProfilEdit'; // Import du composant ProfilEdit
+import ProfilEdit from './ProfilEdit';
 
 const Profil = () => {
   const [activeTab, setActiveTab] = useState("info");
@@ -12,7 +12,7 @@ const Profil = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false); 
   const [commandes, setCommandes] = useState([]);
-
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -26,6 +26,7 @@ const Profil = () => {
         setLoading(false);
       });
   }, []);
+
   useEffect(() => {
     if (activeTab === "orders") {
       api.get("/commandes/", {
@@ -40,12 +41,46 @@ const Profil = () => {
         console.error("Erreur lors de la récupération des commandes", err);
       });
     }
+
+    if (activeTab === "notifications") {
+      api.get("/notifications/", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      })
+      .then((res) => {
+        setNotifications(res.data);
+      })
+      .catch((err) => {
+        console.error("Erreur lors de la récupération des notifications", err);
+      });
+    }
   }, [activeTab]);
+
+  const handleMarkAsRead = (notifId) => {
+    api.post(`/notifications/${notifId}/mark_as_read/`, null, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+    })
+    .then(() => {
+      setNotifications(prev =>
+        prev.map(n =>
+          n.id === notifId ? { ...n, is_read: true } : n
+        )
+      );
+    })
+    .catch((err) => {
+      console.error("Erreur lors du marquage de la notification", err);
+    });
+  };
+
+
   
 
   const handleUpdate = (updatedData) => {
-    setUserInfo(updatedData); // Met à jour les informations de l'utilisateur
-    setIsEditing(false); // Passe en mode lecture après l'édition
+    setUserInfo(updatedData);
+    setIsEditing(false);
   };
 
   return (
@@ -66,6 +101,9 @@ const Profil = () => {
             <li className={activeTab === "wishlist" ? "active" : ""} onClick={() => setActiveTab("wishlist")}>
               <FiHeart className="icon" /> Wishlist
             </li>
+            <li className={activeTab === "notifications" ? "active" : ""} onClick={() => setActiveTab("notifications")}>
+              <FiBell className="icon" /> Notifications
+            </li>
             <li className="logout">
               <FiLogOut className="icon" /> Log Out
             </li>
@@ -75,42 +113,59 @@ const Profil = () => {
         <main className="profile-content">
           {activeTab === "orders" ? (
             <>
-            <h1 className="titre">My Orders</h1>
-            <div className="orders">
-              {commandes.length === 0 ? (
-                <p>Vous n'avez pas encore passé de commande.</p>
-              ) : (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>ORDER</th>
-                      <th>DATE</th>
-                      <th>COST</th>
-                      <th>STATUS</th>
-                      <th>ACTIONS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {commandes.map((commande) => (
-                      <tr key={commande.id}>
-                        <td>#{commande.id}</td>
-                        <td>{new Date(commande.dateCommande).toLocaleDateString()}</td>
-                        <td>${Number(commande.montantTotal).toFixed(2)}</td>
-                        <td>{commande.statut}</td>
-                        <td>
-                        <button className="details-button" onClick={() => window.location.href = `/commande/${commande.id}`}>
-                          Voir détails
-                        </button>
-                        </td>
-                        
+              <h1 className="titre">My Orders</h1>
+              <div className="orders">
+                {commandes.length === 0 ? (
+                  <p>Vous n'avez pas encore passé de commande.</p>
+                ) : (
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>ORDER</th>
+                        <th>DATE</th>
+                        <th>COST</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
                       </tr>
+                    </thead>
+                    <tbody>
+                      {commandes.map((commande) => (
+                        <tr key={commande.id}>
+                          <td>#{commande.id}</td>
+                          <td>{new Date(commande.dateCommande).toLocaleDateString()}</td>
+                          <td>${Number(commande.montantTotal).toFixed(2)}</td>
+                          <td>{commande.statut}</td>
+                          <td>
+                            <button className="details-button" onClick={() => window.location.href = `/commande/${commande.id}`}>
+                              Voir détails
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </>
+          ) : activeTab === "notifications" ? (
+            <>
+              <h1 className="titre">Mes Notifications</h1>
+              <div className="notifications">
+                {notifications.length === 0 ? (
+                  <p>Vous n'avez aucune notification.</p>
+                ) : (
+                  <ul className="notification-list">
+                    {notifications.map((notif) => (
+                      <li key={notif.id} className={`notification-item ${notif.is_read ? 'read' : ''}`}>
+                        <div className="message">{notif.message}</div>
+                        <div className="date">{new Date(notif.dateEnvoi).toLocaleString()}</div>
+                        
+                      </li>
                     ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </>
-          
+                  </ul>
+                )}
+              </div>
+            </>
           ) : (
             <>
               <h1 className="titre">Personal Info</h1>

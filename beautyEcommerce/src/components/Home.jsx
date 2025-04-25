@@ -37,23 +37,27 @@ function Home() {
 
       {/* Banner */}
       <section className="banner">
-        <div className="banner-content">
-          <h2>Reveal Yourself</h2>
-        
-          <button>Find Your Match</button>
-        </div>
-        <div className="banner-images">
-          <img src="/images/baniere1.jpg" alt="Cosmetic Products" />
-          <img src="/images/baniere2.jpg" alt="Cosmetic Products" />
-        </div>
-      </section>
+  <video
+    className="banner-video"
+    autoPlay
+    loop
+    muted
+    playsInline
+  >
+    <source src="/images/video.mp4" type="video/mp4" />
+    Votre navigateur ne supporte pas la lecture vidéo.
+  </video>
+
+
+</section>
+
       <hr className="dividers"></hr>
     
 
       {/* Most Wanted */}
       <section className="most-wanted">
       <p className="title">MORE OF</p>
-        <h3>Touché Beauty</h3>
+        <h3>RosaLuminosa</h3>
         <div className="products">
           {products.slice(0, 4).map(product => (
             <div key={product.id} className="product-card">

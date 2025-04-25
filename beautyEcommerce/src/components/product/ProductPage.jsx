@@ -246,7 +246,7 @@ const ProductPage = () => {
         <hr className="dividere" />
 
         <div className="more-products">
-          <h3>MORE OF Touché Beauty</h3>
+          <h3>MORE OF RosaLuminosa</h3>
           <div className="product-list">
             {similarProducts.length > 0 ? (
               similarProducts.slice(0, 4).map((item) => (

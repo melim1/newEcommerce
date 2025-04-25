@@ -26,7 +26,8 @@ from .views import (
     AdminCommandeDetailView,
     AdminUpdateCommandeStatusView,
     CommentairesProduitAPIView,
-    merge_cart
+    merge_cart,
+    NotificationMarkAsReadView
   
     
 )
@@ -38,7 +39,6 @@ urlpatterns = [
     path('visiteurs/', VisiteurListCreateView.as_view(), name='visiteur-list-create'),
     path('commandes/', CommandeListView.as_view(), name='commande-list'),
     path('commande/<uuid:id>/', CommandeDetailView.as_view(), name='commande-detail'),
-    path('notifications/', NotificationListView.as_view(), name='notification-list'),
     path('produits-en-avant/', produits_en_avant, name='produits_en_avant'),
     path("api/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
@@ -67,6 +67,9 @@ urlpatterns = [
     path('product_detail/<slug:slug>/commentaires/', CommentairesProduitAPIView.as_view(), name='commentaires-produit'),
     path('merge_cart/', merge_cart, name='merge_cart'),
     path('transfer_visitor_cart/', views.transfer_visitor_cart, name='transfer_visitor_cart'),
+    path('notifications/', NotificationListView.as_view(), name='notification-list'),
+    path('notifications/<uuid:pk>/mark-as-read/', NotificationMarkAsReadView.as_view(), name='notification-mark-as-read'),
+
     
 
     
