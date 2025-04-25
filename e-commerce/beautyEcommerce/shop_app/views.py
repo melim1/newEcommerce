@@ -376,6 +376,14 @@ class AdminUpdateCommandeStatusView(APIView):
         commande.statut = new_status
         commande.save()
 
+        # Créer une notification pour le client
+        notification_message = f"Le statut de votre commande #{commande.id} a été mis à jour vers '{new_status}'."
+        Notification.objects.create(
+            utilisateur=commande.client.utilisateur,  # Utilisateur (client) de la commande
+            message=notification_message,
+            type='info'  # Type de notification (ajuster si nécessaire)
+        )
+
         return Response({'message': f'Statut de la commande mis à jour à {new_status}'}, status=status.HTTP_200_OK)
 
 class CommentairesProduitAPIView(APIView):
