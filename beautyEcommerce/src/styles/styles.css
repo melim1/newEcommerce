@@ -1,0 +1,303 @@
+html, body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden; /* Empêche le scroll horizontal */
+    background-color: #f5f5f5;
+}
+
+
+
+/* Overlay pour masquer le contenu principal */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.banner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #D3C5B8;
+    padding: 0px;
+    position: relative;
+    margin-top: 50px; 
+}
+
+.banner-content {
+    text-align: center;
+    margin: 0px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.banner-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.banner-content button {
+    padding: 10px 20px;
+    background-color: #473022;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+.banner-images {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.banner-images img {
+    width: 300px;
+    height: 350px;
+    margin: 0 0 0 0;
+}
+
+.most-wanted {
+    text-align: center;
+    padding: 3rem 0;
+   
+}
+
+.most-wanted .title {
+    font-size: 2.8rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: #333;
+    background-color: transparent;
+}
+
+.most-wanted h3 {
+    font-size: 1.4rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+    color: #666;
+    background-color: transparent;
+}
+
+/* Conteneur des produits */
+.products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.8rem;
+    
+}
+
+/* Carte produit */
+.product-card {
+    position: relative;
+    width: 250px;
+    overflow: hidden;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    background: transparent;
+    
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Conteneur d'image */
+.image-container {
+    position: relative;
+    width: 250px;
+    height: 260px;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+}
+
+.product-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    margin-bottom: 0.5rem;
+}
+
+
+
+/* Infos du produit */
+.product-info {
+    padding: 0.8rem;
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    background: #fff;
+    border-radius: 0 0 12px 12px;
+   
+}
+
+.product-info h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.4rem;
+    
+}
+
+.product-info p {
+    font-size: 1rem;
+    font-weight: 400;
+    color: #666;
+}
+
+
+
+.shop-by-category {
+    padding: 100px;
+    text-align: center;
+    background-color: #DBC5B0;
+}
+.shop-by-category h2 {
+
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    background-color: transparent;
+
+    
+}
+
+.categories {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    background-color: transparent;
+}
+
+.category {
+    position: relative;
+    overflow: hidden;
+    width: 250px;
+    height: 250px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.category img {
+    width: 250px;
+    height: 250px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.category:hover img {
+    transform: scale(1.1);
+    opacity: 0.7;
+}
+.category:hover h3 {
+    position: absolute;
+    top: 50%; /* Centrer verticalement */
+    left: 50%; /* Centrer horizontalement */
+    transform: translate(-50%, -50%); /* Ajuster le centrage */
+    font-size: 1.5rem;
+    color: white;
+   background-color: transparent;
+    padding: 10px;
+    border-radius: 5px;
+    opacity: 0; /* Masquer le texte au départ */
+    transition: opacity 0.3s ease; /* Transition pour l'apparition du texte */
+  
+}
+
+/* Rendre le texte visible au survol */
+.category:hover h3 {
+    opacity: 1;
+}
+/* Section Instagram */
+.instagram-container {
+    
+    background-color: #f6ede7; /* Beige clair */
+    padding: 50px 0;
+    text-align: center;
+    width: 100vw;
+    margin-left: -73px;
+    margin-right: -10px;
+    padding-left: 20px ;
+    padding-right: 40px ;
+}
+
+/* Partie Texte et Images */
+.instagram-content {
+     position: relative;
+    overflow: hidden;
+    width: 250px;
+    height: 250px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.text-section {
+    text-align: left;
+}
+
+.text-section h3 {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.text-section h1 {
+    font-size: 40px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.see-more {
+    background-color: #3b241c; /* Marron foncé */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.images-section {
+    display: flex;
+    gap: 15px;
+}
+
+.images-section img {
+    width: 200px;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+.instagram-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #3b241c; /* Marron foncé */
+}
+
+
+.dividers {
+    border: none;
+    height: 1px;
+    background-color: #3D2920; /* Marron foncé */
+    margin: 0; /* Pas d'espace autour */
+    opacity: 1; /* Pas de transparence */
+}

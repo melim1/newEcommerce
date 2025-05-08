@@ -1,0 +1,58 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #F3E9DF;
+    padding: 10px 20px;
+    border-bottom: 1px solid #3D2920;
+    width: 100vw;  /* Toujours la largeur de l'écran */
+    max-width: 100%; /* Empêche les restrictions de largeur */
+    position: fixed; /* Fixe le header en haut */
+    top: 0; /* Colle en haut */
+    left: 0; /* Colle à gauche */
+    right: 0; /* Colle à droite */
+    z-index: 1000; /* S'assure qu'il reste au-dessus des autres éléments */
+    height: 50px;
+
+   
+}
+
+/* Icône du menu */
+.menu-icon {
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* Conteneur des icônes du panier et du profil */
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Espacement entre les icônes */
+}
+
+/* Icônes du panier et du profil */
+.cart-icon,
+.profile-icon {
+    font-size: 24px;
+    color: black !important;
+    transition: transform 0.2s ease-in-out; /* Effet au survol */
+    text-decoration: none; /* Supprime le soulignement */
+}
+
+/* Effet de zoom au survol pour les icônes */
+.cart-icon:hover,
+.profile-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Liens pour la gestion des icônes */
+.cart-icon a,
+.cart-icon a:visited,
+.cart-icon a:hover,
+.cart-icon a:active {
+    color: black !important; /* Force la couleur d'origine */
+    text-decoration: none !important; /* Supprime le soulignement */
+}
+
+

@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Poppins:wght@300;400;600&display=swap');
+
+
+  /* --- Conteneur principal --- */
+  .register-container {
+    width: 100vw; /* Largeur dynamique par rapport à l'écran */
+    max-width:  1600px; /* Peut être augmenté si besoin */
+    min-height: 100vh; /* Ajuste la hauteur pour bien remplir l'écran */
+    background-color: #fdf7f7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+   
+  }
+  
+  /* --- Onglets connexion & inscription --- */
+  .tabs {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #fdf7f7;
+    margin: 10px;
+    margin-right: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .tabs span {
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    padding-bottom: 5px;
+    color: #3D2920;
+    background-color: #fdf7f7;
+    margin-bottom: 0px;
+    margin-left: 80px;
+    margin-right: 80px;
+  }
+  
+  .tabs .active {
+    border-bottom: 2px solid #7a1a1a;
+  }
+ 
+  /* --- Boîte de connexion --- */
+  .register-box {
+    width: 100%; /* Il doit prendre toute la largeur */
+    max-width: 1000px; /* Augmente si besoin */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin: 0 auto;
+    background-color: #fdf7f7;
+  }
+  
+  /* --- Titre --- */
+  p{
+    font-family: 'Montserrat', sans-serif;
+    font-size: 15px;
+    font-weight: normal;
+    margin-top: 45px;
+    margin-bottom: 25px;
+    background-color: #fdf7f7;
+  }
+  
+  /* --- Champs de saisie --- */
+  .input-field {
+    width: 600px; /* Prend toute la largeur dispo */
+    max-width: none; /* Supprime la limitation */
+    padding: 12px 15px; /* Ajuste le padding */
+    border: 1px solid #3D2920;
+    background: #fdf7f7;
+    font-style: italic;
+    color: #7a1a1a;
+    margin-bottom: 10px;
+   
+    box-sizing: border-box;
+    display: block; /* Évite les bugs flex */
+    
+}
+  
+  /* --- Bouton de connexion (désactivé) --- */
+  .register-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #3D2920;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: not-allowed;
+    margin-top: 10px;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+ 
+form{
+    background-color: #fdf7f7;
+}

@@ -1,0 +1,457 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap');
+
+/* Réinitialisation des styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+    background-color: #f5ebe1;
+}
+
+/* Empêcher le débordement horizontal */
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    background-color: #f5ebe1;
+    
+}
+
+/* Conteneur principal */
+
+
+/* Contenu */
+
+
+
+
+/* Section Produit */
+.product-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 50px;
+    gap: 20px;
+    background-color: #f5ebe1;
+
+}
+span,p{
+    background-color: transparent;
+}
+
+.product-image {
+    flex: 1;
+    max-width: 350px;
+    margin-top: 40px;
+}
+
+.product-image img {
+    width: 100%;
+    border-radius: 8px;
+    display: block;
+}
+
+/* Détails du produit */
+.product-details {
+    flex: 1;
+    padding-left: 20px;
+}
+
+.product-details h2 {
+    font-size: 26px;
+    margin-bottom: 10px;
+}
+
+
+.description {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 5px;
+    background-color: transparent;
+}
+
+.price {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 10px;
+    background-color: transparent;
+}
+
+/* Sélecteur de quantité */
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: space-between;
+    background-color: transparent;
+}
+.quantity-cart {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacement entre le compteur et le bouton */
+    margin-top: 15px;
+    background-color: transparent;
+}
+
+.quantity-selector button {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 5px;
+    transition: background 0.2s ease;
+}
+
+.quantity-selector button:hover {
+    background: #ddd;
+}
+
+.quantity-selector span {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Swatches */
+.color-swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(25px, 1fr));
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.swatch {
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #bbb;
+    transition: transform 0.2s ease;
+}
+
+.swatch:hover {
+    transform: scale(1.1);
+}
+
+/* Bouton Ajouter au Panier */
+.add-to-cart {
+    background-color: #3D2920;
+    color: white;
+    padding:10px 100px;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+}
+
+.add-to-cart:hover {
+    background-color: #333;
+    transform: scale(1.05);
+}
+
+/* Sections Détails Produits (Dropdowns) */
+.product-details-sections {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.dropdown {
+    border-top: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.dropdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px 0;
+    transition: color 0.3s ease;
+}
+
+.dropdown-header:hover {
+    color: #555;
+}
+
+.dropdown-content {
+    padding: 10px 0;
+    font-size: 16px;
+    color: #666;
+}
+
+/* Section More Products */
+.more-products {
+    margin-top: 40px;
+    min-height: 500px; /* Augmente la hauteur minimum */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #DBCFC3;
+    width: 100vw;
+    margin-left: -73px;
+    margin-right: -10px;
+    padding-left: 20px ;
+    padding-right: 40px ;
+}
+
+.more-products h3 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    text-align: center;
+    background-color: #DBCFC3;
+}
+
+.product-list {
+    display: flex;
+    justify-content: center; /* Centre les images horizontalement */
+    gap: 15px; /* Espacement entre les images */
+    flex-wrap: wrap; /* Permet de passer à la ligne si l'écran est petit */
+    padding: 20px;
+    background-color: #DBCFC3;
+
+}
+.product-list img {
+    width: 200px; /* Ajuste la taille des images */
+    height: auto; /* Garde les proportions */
+    border-radius: 10px; /* Coins arrondis pour un meilleur design */
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1); /* Effet d’ombre léger */
+    transition: transform 0.3s ease-in-out; /* Animation au survol */
+}
+
+.product-list img:hover {
+    transform: scale(1.05); /* Agrandit légèrement au survol */
+}
+
+
+.product-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 10px; /* Ajuste l'espacement */
+}
+
+
+
+  
+  
+  .product-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    padding: 25px;
+    background-color: transparent;
+    width: 250px;
+  }
+  
+ 
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+
+  
+  .product-card img {
+    width: 100%;
+    border-radius: 8px;
+    
+  }
+  
+  .product-cards h4 {
+    font-size: 14px;
+    margin: 5px 0;
+    background-color: transparent;
+  }
+  
+  .product-cards p {
+    font-size: 12px;
+    color: #777;
+    background-color: transparent;
+  }
+ 
+  .commentaires-section {
+    background-color: #F8F3EE;
+    padding: 4rem 2rem;
+    text-align: center;
+    overflow-x: hidden;
+    width: 100vw;           /* ✅ prend toute la largeur de l’écran */
+    margin-left: calc(-1 * (100vw - 100%)/2); /* ✅ pour annuler les marges auto */
+  }
+  
+  
+  .commentaires-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background-color: #F8F3EE;
+    
+  }
+  
+  .commentaires-scroll {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding: 1rem 2rem;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    background-color: #F8F3EE;
+    
+  }
+  
+  .commentaires-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .commentaire {
+    flex: 0 0 300px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    text-align: center; /* <-- Centrage horizontal du texte */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* <-- Centrage vertical */
+    align-items: center;     /* <-- Centrage horizontal des éléments */
+    height: 200px; /* tu peux ajuster la hauteur si tu veux toutes les cartes alignées */
+  }
+  
+
+  
+  .commentaire:hover {
+    transform: translateY(-5px);
+  }
+  
+  .scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    z-index: 1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .scroll-btn.left {
+    left: 0.5rem;
+  }
+  
+  .scroll-btn.right {
+    right: 0.5rem;
+  }
+  
+  .scroll-btn:hover {
+    background-color: #f0f0f0;
+  }
+  
+ 
+  
+  
+  
+  .commentaire strong {
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    color: #444;
+    background-color: transparent;
+   
+  }
+  
+  .commentaire p {
+    font-size: 0.95rem;
+    margin: 0.5rem 0;
+    color: #333;
+    background-color: transparent;
+    
+  }
+  
+  
+  
+  .comment-form {
+    max-width: 1000px;
+    margin: 3rem auto 0;
+    text-align: left;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+  
+  .comment-form label {
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    color: #444;
+    background-color: transparent;
+  }
+  
+  .comment-form textarea {
+    width: 100%;
+    height: 100px;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    background-color: transparent;
+  }
+  
+  .comment-form button {
+    background-color: #3D2920;
+    color: white;
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 0.7rem;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 1rem;
+  }
+  
+  .comment-form button:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+  }
+  
+  .rating-stars {
+    margin-bottom: 1rem;
+  }
+  
+  .rating-stars span {
+    font-size: 1.5rem;
+    margin: 0 0.2rem;
+    transition: color 0.2s ease;
+  }
+  
+ .avis-text{
+    background-color: transparent;
+ }
+ .rating-stars {
+    margin: 10px 0;
+    background-color: transparent;
+  }
+  .rating-stars span {
+    transition: color 0.2s;
+  }
+  .rating-stars span:hover {
+    color: black;
+  }
+  .note-stars{
+    background-color: transparent;
+  }
+  
+  
+
