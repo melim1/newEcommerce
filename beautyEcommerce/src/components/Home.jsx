@@ -6,10 +6,14 @@ import Footer from './UI/Footer';
 import InstaSection from './UI/InstaSection';
 import Header from './UI/Header';
 import Menu from './UI/Menu';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
+
 
 function Home() {
   const [products, setProducts] = useState([]);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Ajout de l'état pour le sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
+  const [wishlist, setWishlist] = useState([]);
+
 
   // Fonction pour gérer l'ouverture/fermeture du sidebar
   const toggleSidebar = () => {
@@ -25,6 +29,41 @@ function Home() {
       });
   }, []);
 
+  useEffect(() => {
+    api.get('/products/')
+      .then(response => {
+        setProducts(response.data);
+      })
+      .catch(error => {
+        console.error('Erreur lors de la récupération des produits:', error);
+      });
+  
+    api.get('/wishlist/')
+      .then(response => {
+        const productIds = response.data.map(item => item.product);
+        setWishlist(productIds);
+      })
+      .catch(error => {
+        console.error("Erreur lors de la récupération de la wishlist :", error);
+      });
+  }, []);
+  const toggleWishlist = (productId) => {
+    if (wishlist.includes(productId)) {
+      api.delete('/wishlist/', { data: { product: productId } })
+        .then(() => {
+          setWishlist(prev => prev.filter(id => id !== productId));
+        })
+        .catch(err => console.error("Erreur suppression :", err));
+    } else {
+      api.post('/wishlist/', { product: productId })
+        .then(() => {
+          setWishlist(prev => [...prev, productId]);
+        })
+        .catch(err => console.error("Erreur ajout :", err));
+    }
+  };
+  
+
   return (
     <div className="landing-page">
       {/* Passer les props pour gérer l'état du sidebar */}
@@ -37,41 +76,50 @@ function Home() {
 
       {/* Banner */}
       <section className="banner">
-  <video
-    className="banner-video"
-    autoPlay
-    loop
-    muted
-    playsInline
-  >
-    <source src="/images/video.mp4" type="video/mp4" />
-    Votre navigateur ne supporte pas la lecture vidéo.
-  </video>
 
+      <div className="banner-text">
+    <h1>Bienvenue</h1>
+    <p>Découvrez nos collections makeup.</p>
+  </div>
+  <div className="banner-slider">
+    <img src="/images/banner21.jpg" alt="image 1" />
+    <img src="/images/banner28.jpg" alt="image 2" />
+    <img src="/images/banner27.jpg" alt="image 3" />
+  </div>
 
+  
 </section>
+
+
+
+
+
 
       <hr className="dividers"></hr>
     
 
       {/* Most Wanted */}
       <section className="most-wanted">
-      <p className="title">MORE OF</p>
-        <h3>RosaLuminosa</h3>
+      <p className="title">Voir plus de</p>
+        <h3>IGLAM</h3>
         <div className="products">
           {products.slice(0, 4).map(product => (
             <div key={product.id} className="product-card">
-              <Link to={`products/${product.slug}`} className="product-link">
               
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                  />
-                
-                <h3>{product.name}</h3>
-                <p>${product.price}</p>
-              </Link>
+            <div className="wishlist-icon" onClick={() => toggleWishlist(product.id)}>
+              {wishlist.includes(product.id) ? (
+                <FaHeart color="black" />
+              ) : (
+                <FaRegHeart />
+              )}
             </div>
+            <Link to={`products/${product.slug}`} className="product-link">
+              <img src={product.image} alt={product.name} />
+              <h3>{product.name}</h3>
+              <p>${product.price}</p>
+            </Link>
+          </div>
+          
           ))}
         </div>
       </section>
@@ -79,7 +127,7 @@ function Home() {
 
       {/* Shop by Category */}
       <section className="shop-by-category">
-        <h2>Shop by Category</h2>
+        <h2>Nos catégories</h2>
         <div className="categories">
           <div className="category" id="eyes">
             <img src="/images/img2.jpg" alt="Cosmetic Products" />

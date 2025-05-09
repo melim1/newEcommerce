@@ -63,6 +63,7 @@ span,p{
     margin-left: 0; /* s'assurer qu'il n'y a pas de décalage */
     text-align: left; /* au cas où ce serait centré */
     width: 100%; /* s'assurer qu'il prend tout l'espace dispo pour bien s'aligner */
+    font-family: 'Playfair Display', serif;
 
 }
 
@@ -73,6 +74,8 @@ span,p{
     color: #666;
     margin-bottom: 5px;
     background-color: transparent;
+    
+ font-family: 'Playfair Display', serif;
 }
 
 .price {
@@ -143,8 +146,8 @@ span,p{
 .add-to-cart {
     background-color: #3D2920;
     color: white;
-    padding:10px 100px;
-    width: 100%;
+    padding:10px 50px;
+    width: 240px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -178,6 +181,7 @@ span,p{
     font-weight: bold;
     padding: 10px 0;
     transition: color 0.3s ease;
+    
 }
 
 .dropdown-header:hover {
@@ -188,6 +192,7 @@ span,p{
     padding: 10px 0;
     font-size: 16px;
     color: #666;
+    
 }
 
 /* Section More Products */

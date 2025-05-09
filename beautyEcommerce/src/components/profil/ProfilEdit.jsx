@@ -51,12 +51,12 @@ const ProfilEdit = ({ userInfo, onUpdate }) => {
   return (
     <form className="personal-info-form">
       <div className="form-group">
-        <label>Email address*</label>
+        <label>Adresse Email*</label>
         <input type="email" value={userInfo.email} disabled />
       </div>
 
       <div className="form-group">
-        <label>First Name*</label>
+        <label>Nom*</label>
         <input
           type="text"
           name="nom"
@@ -66,7 +66,7 @@ const ProfilEdit = ({ userInfo, onUpdate }) => {
       </div>
 
       <div className="form-group">
-        <label>Last Name*</label>
+        <label>Prénom*</label>
         <input
           type="text"
           name="prenom"

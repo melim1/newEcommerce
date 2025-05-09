@@ -136,7 +136,7 @@ const CartPage = () => {
       <div className="cart-container">
         <Header />
         <hr className="divider" />
-        <h2 className="cart-title">Your Shopping Cart</h2>
+        <h2 className="cart-title">Mon panier</h2>
 
         <div className="cart-content">
           <div className="cart-items">
@@ -163,16 +163,16 @@ const CartPage = () => {
                 </div>
               ))
             ) : (
-              <p>Your cart is empty.</p>
+              <p>Il n’y a aucun article dans votre panier.</p>
             )}
           </div>
 
           <div className="cart-summary">
-            <h3>Order Summary</h3>
+            <h3>Détail de la commande</h3>
             <hr className="cart-summary-divider" />
             <div className="summary-details">
-              <p>Subtotal: <span>${cartTotal.toFixed(2)}</span></p>
-              <p>Shipping: <span>Calculated on checkout</span></p>
+              <p>Sous-total: <span>${cartTotal.toFixed(2)}</span></p>
+              
               <hr className="cart-summary-divider" />
               <p>Total: <span>${cartTotal.toFixed(2)}</span></p>
             </div>
@@ -189,11 +189,11 @@ const CartPage = () => {
                 }
               }}
             >
-              CHECKOUT NOW
+             VALIDER MON PANIER
             </button>
 
             <button className="continue-shopping" onClick={() => navigate("/")}>
-              CONTINUE SHOPPING
+           POURSUIVRE LES ACHATS
             </button>
           </div>
         </div>

@@ -213,7 +213,7 @@ const ProductPage = () => {
           <div className="product-details">
             <h2>{product.name}</h2>
             <p className="description">{product.description}</p>
-            <p className="price">{product.price}€</p>
+            <p className="price">{product.price}$</p>
 
             <div className="color-swatches">
               {colors.map((color, i) => (
@@ -223,13 +223,13 @@ const ProductPage = () => {
 
             <div className="product-actions">
             <button className="add-to-cart" onClick={addToCart}>
-              ADD TO CART
+             AJOUTER AU PANIER 
             </button>
 
               <div className="product-details-sections">
                 <div className="dropdown">
                   <div className="dropdown-header" onClick={() => toggleDropdown(0)}>
-                    <span>INGREDIENTS</span>
+                    <span>Ingrédients</span>
                     {openDropdown === 0 ? <FaChevronUp /> : <FaChevronDown />}
                   </div>
                   {openDropdown === 0 && (
@@ -246,7 +246,7 @@ const ProductPage = () => {
         <hr className="dividere" />
 
         <div className="more-products">
-          <h3>MORE OF RosaLuminosa</h3>
+          <h3> VOIR PLUS DE  RosaLuminosa</h3>
           <div className="product-list">
             {similarProducts.length > 0 ? (
               similarProducts.slice(0, 4).map((item) => (

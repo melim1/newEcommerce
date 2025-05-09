@@ -47,12 +47,12 @@ const MiniCarte = ({ visible, onClose, items }) => {
                         <div className="mini-cart-info">
                             <p className="nom">{item.product.name}</p>
                             <p className="quantité">Quantité : {item.quantity}</p>
-                            <p className="total">Total : {item.product.price * item.quantity} €</p>
+                            <p className="total">Total : {item.product.price * item.quantity} $</p>
                         </div>
                     </div>
                 ))}
                 <div className="cart-total">
-                    <strong className="totale">Total panier : {totalGlobal} €</strong>
+                    <strong className="totale">Total panier : {totalGlobal} $</strong>
                 </div>
             </div>
 

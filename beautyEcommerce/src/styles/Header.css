@@ -16,13 +16,14 @@
 
    
 }
-
-/* Icône du menu */
-.menu-icon {
-    font-size: 24px;
-    cursor: pointer;
-    margin-left: 10px;
+.logo2 {
+    height: 100px; /* Ajuste selon ta préférence */
+    width: 550px;
+    object-fit: contain;
+    margin-top: 25px;
+    background-color: transparent;
 }
+
 
 /* Conteneur des icônes du panier et du profil */
 .header-icons {

@@ -27,7 +27,8 @@ from .views import (
     AdminUpdateCommandeStatusView,
     CommentairesProduitAPIView,
     merge_cart,
-    NotificationMarkAsReadView
+    NotificationMarkAsReadView,
+    WishlistView
   
     
 )
@@ -69,6 +70,7 @@ urlpatterns = [
     path('transfer_visitor_cart/', views.transfer_visitor_cart, name='transfer_visitor_cart'),
     path('notifications/', NotificationListView.as_view(), name='notification-list'),
     path('notifications/<uuid:pk>/mark-as-read/', NotificationMarkAsReadView.as_view(), name='notification-mark-as-read'),
+    path('wishlist/', WishlistView.as_view(), name='wishlist'),
 
     
 

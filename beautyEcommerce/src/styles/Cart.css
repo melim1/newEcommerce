@@ -15,6 +15,7 @@
   margin-bottom: 20px;
   border-bottom: 1px solid #ddd;
   padding: 20px 0;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .cart-content {
@@ -114,6 +115,7 @@ p,
 span,
 h3 {
   background-color: #FBF6F2;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .cart-summary-divider {

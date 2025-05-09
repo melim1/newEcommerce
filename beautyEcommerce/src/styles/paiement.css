@@ -81,3 +81,44 @@
 .paiement-container button:hover {
   background-color: #a4816c;
 }
+/* paiement.css */
+/* Personnalisation des notifications */
+.Toastify__toast-container {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 9999 !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Toastify__toast {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 16px !important;
+  padding: 15px 20px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  color: white !important;
+}
+
+.Toastify__toast--success {
+  background-color: #a4816c !important; /* Vert doux */
+  color: #fff !important;
+}
+
+.Toastify__toast--error {
+  background-color: #a4816c !important; /* Rouge doux */
+  color: #fff !important;
+}
+
+.Toastify__toast--info {
+  background-color: #a4816c !important; /* Bleu info */
+  color: #fff !important;
+}
+
+.Toastify__toast--warning {
+  background-color: #a4816c !important; /* Jaune avertissement */
+  color: #fff !important;
+}

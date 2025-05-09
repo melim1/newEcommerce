@@ -77,28 +77,28 @@ const CheckOut = () => {
   return (
     <div className="checkout-container">
       <div className="checkout-form">
-        <h2>Contacts</h2>
+        <h2>Coordonnées </h2>
         <div className="form-row">
-          <input type="text" placeholder="First Name" />
-          <input type="text" placeholder="Last Name" />
+          <input type="text" placeholder="Nom" />
+          <input type="text" placeholder="Prénom" />
         </div>
         <div className="form-row">
           <input type="email" placeholder="E-mail" />
-          <input type="text" placeholder="Phone" />
+          <input type="text" placeholder="Téléphone" />
         </div>
 
-        <h2>Shipping address</h2>
+        <h2>Adresse de livraison</h2>
         <div className="form-row">
           <input
             type="text"
-            placeholder="Country / Region"
+            placeholder="Pays"
             name="pays"
             value={formData.pays}
             onChange={handleChange}
           />
           <input
             type="text"
-            placeholder="City"
+            placeholder="Ville"
             name="ville"
             value={formData.ville}
             onChange={handleChange}
@@ -107,14 +107,14 @@ const CheckOut = () => {
         <div className="form-row">
           <input
             type="text"
-            placeholder="Postal code"
+            placeholder="Code postal "
             name="codePostal"
             value={formData.codePostal}
             onChange={handleChange}
           />
           <input
             type="text"
-            placeholder="Address, apartment, suite"
+            placeholder="Adresse, appartement"
             name="rue"
             value={formData.rue}
             onChange={handleChange}
@@ -131,8 +131,8 @@ const CheckOut = () => {
          
         </div>
 
-        <button className="payment-button" onClick={handleSubmit}>PAYMENT</button>
-        <a href="#" className="back-link">BACK TO SHOPPING CART</a>
+        <button className="payment-button" onClick={handleSubmit}>PAIEMENT</button>
+        <a href="#" className="back-link">Retourner au panier</a>
       </div>
 
       <div className="checkout-summary">
@@ -150,7 +150,7 @@ const CheckOut = () => {
         ))}
 
         <div className="summary-details">
-          <p>Subtotal: ${subtotal.toFixed(2)}</p>
+          <p>Sous total: ${subtotal.toFixed(2)}</p>
           <p className="summary-total">Total: ${subtotal.toFixed(2)}</p>
         </div>
       </div>

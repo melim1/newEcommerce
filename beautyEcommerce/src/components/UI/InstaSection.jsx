@@ -8,9 +8,9 @@ const InstaSection = () => {
     <div className="instagram-content">
       <div className="text-section">
         <h3>
-          FOLLOW US ON <br /> <span className="instagram-title">INSTAGRAM</span>
+        Retrouvez-nous sur <br /> <span className="instagram-title">INSTAGRAM</span>
         </h3>
-        <Link to="/instagram" className="see-more">SEE MORE</Link>
+        <Link to="/instagram" className="see-more">VOIR PLUS</Link>
       </div>
       <div className="images-section">
         <img src="/images/img1.jpg" alt="Product 1" />

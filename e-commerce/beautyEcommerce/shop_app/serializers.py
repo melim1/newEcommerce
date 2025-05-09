@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Utilisateur, Client, Administrateur, Product, Commande, LigneCommande, CommentaireProduit, Notification ,Visiteur,Cart, CartItem,Paiement
+from .models import Utilisateur, Client, Administrateur, Product, Commande, LigneCommande, CommentaireProduit, Notification ,Visiteur,Cart, CartItem,Paiement,Wishlist
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
@@ -259,3 +259,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ['nom', 'prenom', 'email','tel','password'] 
             
+class WishlistSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'utilisateur', 'product', 'added_at']
+        read_only_fields = ['utilisateur', 'added_at']            

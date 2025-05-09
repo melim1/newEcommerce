@@ -262,3 +262,10 @@ def reset_passwords_after_migration(sender, **kwargs):
 
 
 
+class Wishlist(models.Model):
+    utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name="wishlist")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="wishlisted_by")
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('utilisateur', 'product')  # éviter les doublons

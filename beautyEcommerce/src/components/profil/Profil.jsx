@@ -13,6 +13,8 @@ const Profil = () => {
   const [isEditing, setIsEditing] = useState(false); 
   const [commandes, setCommandes] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [wishlist, setWishlist] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -29,17 +31,15 @@ const Profil = () => {
 
   useEffect(() => {
     if (activeTab === "orders") {
-      api.get("/commandes/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      .then((res) => {
-        setCommandes(res.data);
-      })
-      .catch((err) => {
-        console.error("Erreur lors de la récupération des commandes", err);
-      });
+      api.get("commandes/")
+        .then((res) => setCommandes(res.data))
+        .catch((err) => console.error("Erreur récupération commandes", err));
+    }
+
+    if (activeTab === "wishlist") {
+      api.get("/wishlist/")
+        .then((res) => setWishlist(res.data))
+        .catch((err) => console.error("Erreur récupération wishlist", err));
     }
 
     if (activeTab === "notifications") {
@@ -50,11 +50,14 @@ const Profil = () => {
       })
       .then((res) => {
         setNotifications(res.data);
+        const unread = res.data.filter(notif => !notif.is_read).length;
+        setUnreadCount(unread);
       })
       .catch((err) => {
         console.error("Erreur lors de la récupération des notifications", err);
       });
     }
+
   }, [activeTab]);
 
   const handleMarkAsRead = (notifId) => {
@@ -64,19 +67,24 @@ const Profil = () => {
       },
     })
     .then(() => {
-      setNotifications(prev =>
-        prev.map(n =>
-          n.id === notifId ? { ...n, is_read: true } : n
+      setNotifications(prev => 
+        prev.map(notification => 
+          notification.id === notifId ? { ...notification, is_read: true } : notification
         )
       );
+      setUnreadCount(prev => prev - 1);
     })
     .catch((err) => {
       console.error("Erreur lors du marquage de la notification", err);
     });
   };
 
-
-  
+  const handleClickNotificationsTab = () => {
+    setUnreadCount(0);
+    setNotifications(prev => 
+      prev.map(notification => ({ ...notification, is_read: true }))
+    );
+  };
 
   const handleUpdate = (updatedData) => {
     setUserInfo(updatedData);
@@ -93,19 +101,26 @@ const Profil = () => {
           </div>
           <ul className="profile-menu">
             <li className={activeTab === "info" ? "active" : ""} onClick={() => setActiveTab("info")}>
-              <FiUser className="icon" /> Personal Info
+              <FiUser className="icon" />  Informations personnelles 
             </li>
             <li className={activeTab === "orders" ? "active" : ""} onClick={() => setActiveTab("orders")}>
-              <FiPackage className="icon" /> My Orders
+              <FiPackage className="icon" /> Mes commandes
             </li>
             <li className={activeTab === "wishlist" ? "active" : ""} onClick={() => setActiveTab("wishlist")}>
-              <FiHeart className="icon" /> Wishlist
+              <FiHeart className="icon" /> Favoris
             </li>
-            <li className={activeTab === "notifications" ? "active" : ""} onClick={() => setActiveTab("notifications")}>
-              <FiBell className="icon" /> Notifications
+            <li 
+              className={activeTab === "notifications" ? "active" : ""} 
+              onClick={() => { 
+                setActiveTab("notifications"); 
+                handleClickNotificationsTab();
+              }}
+            >
+              <FiBell className="icon" /> Notifications 
+              {unreadCount > 0 && <span className="notification-count">{unreadCount}</span>}
             </li>
             <li className="logout">
-              <FiLogOut className="icon" /> Log Out
+              <FiLogOut className="icon" /> Déconnexion
             </li>
           </ul>
         </aside>
@@ -113,7 +128,7 @@ const Profil = () => {
         <main className="profile-content">
           {activeTab === "orders" ? (
             <>
-              <h1 className="titre">My Orders</h1>
+              <h1 className="titre">Mes commandes</h1>
               <div className="orders">
                 {commandes.length === 0 ? (
                   <p>Vous n'avez pas encore passé de commande.</p>
@@ -147,6 +162,50 @@ const Profil = () => {
                 )}
               </div>
             </>
+          ) : activeTab === "wishlist" ? (
+            <>
+              <h1 className="titre">Mes favoris</h1>
+          <div className="wishlist">
+            {wishlist.length === 0 ? (
+              <p>Votre wishlist est vide.</p>
+            ) : (
+              <div className="wishlist-items">
+                {wishlist.map((item) => (
+                  <div key={item.id} className="wishlist-card">
+                    <img
+                      src={`http://localhost:8000${item.product.image}`} 
+                      alt={item.product.name}
+                      className="wishlist-product-image"
+                    />
+                    <div className="wishlist-product-info">
+                      <h3>{item.product.name}</h3>
+                     </div>
+                     
+                     
+
+                      <div className="wishlist-product-inf">
+                      <p>{item.product.price}$</p>
+                     
+                   
+                    </div>
+
+                    <div className='wishlist-buttons'>
+                       
+                    <button
+                        className="voir-details-button"
+                        onClick={() => window.location.href = `/product/${item.product.slug}`}
+                      >
+                        Voir le produit
+                      </button>
+
+                      </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+            </>
           ) : activeTab === "notifications" ? (
             <>
               <h1 className="titre">Mes Notifications</h1>
@@ -156,10 +215,13 @@ const Profil = () => {
                 ) : (
                   <ul className="notification-list">
                     {notifications.map((notif) => (
-                      <li key={notif.id} className={`notification-item ${notif.is_read ? 'read' : ''}`}>
+                      <li 
+                        key={notif.id} 
+                        className={`notification-item ${notif.is_read ? 'read' : ''}`}
+                        onClick={() => handleMarkAsRead(notif.id)}
+                      >
                         <div className="message">{notif.message}</div>
                         <div className="date">{new Date(notif.dateEnvoi).toLocaleString()}</div>
-                        
                       </li>
                     ))}
                   </ul>
@@ -168,7 +230,7 @@ const Profil = () => {
             </>
           ) : (
             <>
-              <h1 className="titre">Personal Info</h1>
+              <h1 className="titre"> Informations personnelles </h1>
               {!isEditing ? (
                 <div>
                   <div className="form-group">

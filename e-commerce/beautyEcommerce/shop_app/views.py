@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view,permission_classes
-from .models import Product, Visiteur, Cart,CartItem, Commande, CommentaireProduit, Notification,Utilisateur,Client,Paiement
+from .models import Product, Visiteur, Cart,CartItem, Commande, CommentaireProduit, Notification,Utilisateur,Client,Paiement, Wishlist
 from .serializers import ProductSerializer, DetailedProductSerializer,VisiteurSerializer, CommandeSerializer,CommentaireProduitSerializer,NotificationSerializer,CartItemSerializer,ClientSerializer,CartSerializer,PaiementSerializer
 from rest_framework.response import Response
 from rest_framework import generics
 import random
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomTokenObtainPairSerializer,CreateCommandeSerializer
+from .serializers import CustomTokenObtainPairSerializer,CreateCommandeSerializer,WishlistSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework import status, permissions
@@ -713,3 +713,36 @@ class NotificationMarkAsReadView(APIView):
         notification.is_read = True
         notification.save()
         return Response({'status': 'Notification marquée comme lue'}, status=status.HTTP_200_OK)
+
+class WishlistView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        wishlist_items = Wishlist.objects.filter(utilisateur=request.user)
+        serializer = WishlistSerializer(wishlist_items, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        product_id = request.data.get('product')
+        if not product_id:
+            return Response({'error': 'Le champ product est requis.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if Wishlist.objects.filter(utilisateur=request.user, product_id=product_id).exists():
+            return Response({'message': 'Produit déjà dans la wishlist.'}, status=status.HTTP_200_OK)
+
+        wishlist_item = Wishlist(utilisateur=request.user, product_id=product_id)
+        wishlist_item.save()
+        serializer = WishlistSerializer(wishlist_item)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        product_id = request.data.get('product')
+        if not product_id:
+            return Response({'error': 'Le champ product est requis.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            wishlist_item = Wishlist.objects.get(utilisateur=request.user, product_id=product_id)
+            wishlist_item.delete()
+            return Response({'message': 'Produit supprimé de la wishlist.'}, status=status.HTTP_204_NO_CONTENT)
+        except Wishlist.DoesNotExist:
+            return Response({'error': 'Produit non trouvé dans la wishlist.'}, status=status.HTTP_404_NOT_FOUND)

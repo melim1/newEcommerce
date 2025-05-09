@@ -24,30 +24,117 @@ html, body {
     font-size: 2rem;
     font-weight: bold;
 }
-
 .banner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #D3C5B8;
-    padding: 0px;
     position: relative;
     height: 590px;
-    
+    background-color: #D3C5B8;
+    overflow: hidden;
+}
+/* Texte centré avec zoom esthétique */
+.banner-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    opacity: 0;
+    z-index: 3;
+    animation: zoomText 3s ease forwards;
+    font-family: 'Playfair Display', serif;
+    color: white;
+    background-color: transparent
+
+}
+
+.banner-text h1 {
+    font-size: 3rem;
+    margin: 0;
+    background-color: transparent;
+    font-family: 'Playfair Display', serif;
+}
+
+.banner-text p {
+    font-size: 1.5rem;
+    margin-top: 10px;
+    background-color: transparent;
+    font-family: 'Playfair Display', serif;
+}
+
+/* Animation de zoom */
+@keyframes zoomText {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
 
 
+/* Le conteneur des deux images */
+.banner-slider {
+    position: absolute;
+    top: 0;
+    left: 100%; /* commence hors écran à droite */
+    height: 100%;
+    display: flex;
+    animation: slideBoth 6s ease forwards;
+}
+
+.banner-slider img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Animation de déplacement des deux images */
+@keyframes slideBoth {
+    from {
+        left: 100%;
+    }
+    to {
+        left: 0%;
+    }
+}
+
+
+
+@keyframes fadeInText {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+
+
+
+@media (max-width: 768px) {
+    .banner {
+      flex-direction: column;
+      height: auto;
+    }
+  
+    .banner img {
+      position: relative;
+      width: 100%;
+      height: auto;
+    }
+  
+    .banner-content {
+      text-align: center;
+      padding: 20px;
+    }
+  }
   
 
-.banner-video {
-    
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-   
-  }
+
 
 
 
@@ -301,4 +388,41 @@ html, body {
     background-color: #3D2920; /* Marron foncé */
     margin: 0; /* Pas d'espace autour */
     opacity: 1; /* Pas de transparence */
+}
+/* Wishlist Icon toujours visible dans les cartes produit */
+.wishlist-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    cursor: pointer;
+    font-size: 1.6rem;
+    color: #3b241c;
+    
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+  
+  /* Optionnel : effet au survol */
+  .wishlist-icon:hover {
+    transform: scale(1.2);
+  }
+  
+  /* Assure que la carte produit a une position relative pour que le cœur se place correctement */
+  .product-card {
+    position: relative;
+  }
+  
+  .logo1 {
+    height: 60px; /* Ajuste selon ta navbar */
+    width: auto;  /* Pas 100%, sinon il s'étire */
+    object-fit: contain;
+    margin-top: 0;
+    background-color: transparent;
+    margin-left: 10px; /* Espace depuis la gauche */
+    align-items: flex-start;
 }
