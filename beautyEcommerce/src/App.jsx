@@ -14,6 +14,8 @@ import Confirmation from './components/Commande/Confirmation';
 import Paiement from './components/Paiement/Paiement';
 import CommandeDetails from './components/Commande/CommandeDetails';
 import GestionCommande from './components/AdminFunction/GestionCommande';
+import AddProduct from './components/AddProduct';
+
 
 const App = () => {
   return (
@@ -30,6 +32,8 @@ const App = () => {
       <Route path="/instagram" element={<InstagramPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/AddProduct" element={<AddProduct />} />
+
       <Route path="/checkout" element={<CheckOut />} />
       <Route path="/confirmation/:commande_id" element={<Confirmation />} />
       <Route path="/paiement/:commandeId/:montant" element={<Paiement />} />

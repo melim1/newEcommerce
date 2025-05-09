@@ -29,17 +29,37 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="admin-dashboard">
+    <div className="admin-dashboard white-background">
       <header className="admin-header">
-        <h1>Admin Dashboard</h1>
+        <div className="admin-title">Admin Dashboard</div>
         <nav className="top-nav">
-          <ul>
-            <li onClick={() => setActiveTab("dashboard")}>Tableau de bord</li>
-            <li onClick={() => setActiveTab("products")}>Produits</li>
-            <li onClick={() => setActiveTab("orders")}>Commandes</li>
-            <li onClick={() => setActiveTab("users")}>Utilisateurs</li>
-            <li onClick={handleLogout}>Se déconnecter</li>
-          </ul>
+          <button
+            className={`nav-btn ${activeTab === "dashboard" ? "active" : ""}`}
+            onClick={() => setActiveTab("dashboard")}
+          >
+            Tableau de bord
+          </button>
+          <button
+            className={`nav-btn ${activeTab === "products" ? "active" : ""}`}
+            onClick={() => setActiveTab("products")}
+          >
+            Produits
+          </button>
+          <button
+            className={`nav-btn ${activeTab === "orders" ? "active" : ""}`}
+            onClick={() => setActiveTab("orders")}
+          >
+            Commandes
+          </button>
+          <button
+            className={`nav-btn ${activeTab === "users" ? "active" : ""}`}
+            onClick={() => setActiveTab("users")}
+          >
+            Utilisateurs
+          </button>
+          <button className="nav-btn logout" onClick={handleLogout}>
+            Se déconnecter
+          </button>
         </nav>
       </header>
 

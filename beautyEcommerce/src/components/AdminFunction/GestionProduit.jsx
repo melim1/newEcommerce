@@ -72,9 +72,9 @@ const GestionProduit = () => {
         });
         alert('Produit modifié avec succès');
       } else {
-        await api.post('/produits/ajouter/', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+       await api.post('/api/produits/ajouter/', formData, {
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
         alert('Produit ajouté avec succès');
       }
 
@@ -92,8 +92,17 @@ const GestionProduit = () => {
       setEditing(false);
       fetchProduits();
     } catch (error) {
+      console.log("Données envoyées:", {
+        name: productForm.name,
+        description: productForm.description,
+        price: productForm.price,
+        category: productForm.category,
+        stockDisponible: productForm.stockDisponible,
+        ingredient: productForm.ingredient,
+        image: productForm.image instanceof File ? "Fichier présent" : "Aucun fichier"
+      });
       console.error('Erreur lors de la soumission du produit', error);
-      alert("Erreur : " + (error.response?.data?.detail || error.message));
+      alert("Catégorie introuvable" );
     }
   };
 

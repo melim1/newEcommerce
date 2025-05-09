@@ -34,6 +34,19 @@ class ProductListView(generics.ListAPIView):
     serializer_class = ProductSerializer
 
 
+
+class ProductByClientView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        user = self.request.user
+        try:
+            client = Client.objects.get(utilisateur=user)
+            return Product.objects.filter(client=client)
+        except Client.DoesNotExist:
+            return Product.objects.none()
+
+
 @api_view(["GET"])
 def product_detail(request, slug):
  product = Product.objects.get(slug=slug)

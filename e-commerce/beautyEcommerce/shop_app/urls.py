@@ -28,7 +28,8 @@ from .views import (
     CommentairesProduitAPIView,
     merge_cart,
     NotificationMarkAsReadView,
-    WishlistView
+    WishlistView,
+    ProductByClientView,
   
     
 )
@@ -36,6 +37,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path("products/", ProductListView.as_view(), name="products"),
+    path('product/', ProductByClientView.as_view(), name='produits_par_client'),
     path("product_detail/<slug:slug>/", product_detail, name="product_detail"),
     path('visiteurs/', VisiteurListCreateView.as_view(), name='visiteur-list-create'),
     path('commandes/', CommandeListView.as_view(), name='commande-list'),
