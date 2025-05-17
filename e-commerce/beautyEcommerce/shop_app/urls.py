@@ -31,7 +31,7 @@ from .views import (
     ProductByClientView,
     ClientCommandeListView,
     changer_statut,
-    envoyer_notification,
+    transfer_visitor_cart,
     WishlistView,
     UserNotificationsView
   
@@ -40,7 +40,7 @@ from .views import (
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
-    path('envoyer-notification/', envoyer_notification, name='envoyer_notification'),
+    
 
     path("products/", ProductListView.as_view(), name="products"),
     path('product/', ProductByClientView.as_view(), name='produits_par_client'),
@@ -94,6 +94,7 @@ urlpatterns = [
     path('wishlist/', WishlistView.as_view(), name='wishlist'),
 
      path('usernotifications/', UserNotificationsView.as_view(), name='user-notifications'),
+      path("transfer_visitor_cart/",views. transfer_visitor_cart, name="transfer_visitor_cart"),
 
 
 

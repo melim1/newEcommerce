@@ -20,6 +20,7 @@ import ProfilEdit from './ProfilEdit';
 const Profil = () => {
 
   const [notifications , setNotifications]= useState([]);
+  const [loadingNotif, setLoadingNotif] = useState(false);
   const [activeTab, setActiveTab] = useState("info");
   const [userInfo, setUserInfo] = useState({});
   const [loading, setLoading] = useState(false);
@@ -84,22 +85,25 @@ const Profil = () => {
     }
 
     if (activeTab === "notifications") {
-      api.get("/notifications/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      .then((res) => {
-        setNotifications(res.data);
-        const unread = res.data.filter(notif => !notif.is_read).length;
-        
-      })
-      .catch((err) => {
-        console.error("Erreur lors de la récupération des notifications", err);
-      });
+      fetchNotifications();
     }
 
   }, [activeTab]);
+  const fetchNotifications = async () => {
+    setLoadingNotif(true);
+    try {
+      const response = await api.get('/usernotifications/', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access')}`,
+        },
+      });
+      setNotifications(response.data);
+    } catch (error) {
+      console.error('Erreur lors du chargement des notifications:', error);
+    } finally {
+      setLoadingNotif(false);
+    }
+  };
 
   const fetchProduits = () => {
     api.get("/product/", {
@@ -150,24 +154,7 @@ const Profil = () => {
 
  
 
-  const envoyerNotification = (id_commande,message, utilisateur_id
-  ) => {
-    const data = {
-
-      message: `Votre commande ${id_commande} a été ${message}`,
-      utilisateur_id: utilisateur_id,
-    };
-    console.log(data);
-    api.post('/envoyer-notification/', data, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).then(res => {
-      console.log(res.data);
-    }).catch(err => {
-      console.error(err);
-    });
-  };
+ 
  useEffect(() => {
     api.get('api/client/commandes/')
       .then(res => {
@@ -572,25 +559,24 @@ const Profil = () => {
 
           {activeTab === "notifications" && (
                 <>
-              <h1 className="titre">Mes Notifications</h1>
-              <div className="notifications">
-                {notifications.length === 0 ? (
-                  <p>Vous n'avez aucune notification.</p>
-                ) : (
-                  <ul className="notification-list">
-                    {notifications.map((notif) => (
-                      <li 
-                        key={notif.id} 
-                        className={`notification-item ${notif.is_read ? 'read' : ''}`}
-                        onClick={() => handleMarkAsRead(notif.id)}
-                      >
-                        <div className="message">{notif.message}</div>
-                        <div className="date">{new Date(notif.dateEnvoi).toLocaleString()}</div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+               <div>
+            <h2>Mes notifications</h2>
+            {loadingNotif ? (
+              <p>Chargement...</p>
+            ) : notifications.length > 0 ? (
+              <ul>
+                {notifications.map((notif) => (
+                  <li key={notif.id} className={`notif notif-${notif.type}`}>
+                    <strong>{notif.type.toUpperCase()}:</strong> {notif.message}
+                    <br />
+                    <small>{new Date(notif.dateEnvoi).toLocaleString()}</small>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Aucune notification pour le moment.</p>
+            )}
+          </div>
             </>
 
 

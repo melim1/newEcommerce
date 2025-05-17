@@ -25,27 +25,22 @@ const ProductPage = () => {
   const [showMiniCart, setShowMiniCart] = useState(false);
   const [miniCartItems, setMiniCartItems] = useState([]);
 
-
   const token = localStorage.getItem('access_token');
 
-  const scrollComments = (direction) => {
-    const container = document.getElementById('commentaires-scroll');
-    const scrollAmount = 320; // correspond à la largeur des cartes + margin
-  
-    if (container) {
-      container.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth',
-      });
-    }
-  };
-  
-
+  // Générer cart_code si inexistant
   let cart_code = localStorage.getItem("cart_code");
   if (!cart_code) {
     cart_code = Date.now().toString();
     localStorage.setItem("cart_code", cart_code);
   }
+
+  // Générer session_id si inexistant (visiteur)
+  useEffect(() => {
+    if (!localStorage.getItem("session_id")) {
+      const newId = uuidv4();
+      localStorage.setItem("session_id", newId);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -53,7 +48,6 @@ const ProductPage = () => {
       try {
         const response = await api.get(`/product_detail/${slug}/`);
         setProduct(response.data);
-
         const similarResponse = await api.get(`/products/?category=${response.data.category}`);
         setSimilarProducts(similarResponse.data);
       } catch (error) {
@@ -62,24 +56,18 @@ const ProductPage = () => {
         setLoading(false);
       }
     };
-
     fetchProductDetails();
   }, [slug]);
-  
+
   useEffect(() => {
-    setShowMiniCart(false); // Cacher le mini panier quand on change de produit
+    setShowMiniCart(false);
   }, [slug]);
-  
 
   useEffect(() => {
     if (slug) {
       api.get(`/product_detail/${slug}/commentaires/`)
-        .then(res => {
-          setCommentaires(res.data);
-        })
-        .catch(err => {
-          console.error("Erreur lors du chargement des commentaires :", err);
-        });
+        .then(res => setCommentaires(res.data))
+        .catch(err => console.error("Erreur lors du chargement des commentaires :", err));
     }
   }, [slug]);
 
@@ -93,72 +81,55 @@ const ProductPage = () => {
     if (!contenu || !note) return;
 
     setIsSubmitting(true);
-
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
+      const config = { headers: { Authorization: `Bearer ${token}` } };
       await api.post(`/product_detail/${slug}/commentaires/`, {
         produit: product.id,
         noteSur5: note,
         contenu: contenu,
       }, config);
-
       const res = await api.get(`/product_detail/${slug}/commentaires/`);
       setCommentaires(res.data);
-
       setContenu("");
       setNote(5);
     } catch (err) {
       console.error("Erreur lors de l'envoi du commentaire :", err);
-      if (err.response?.status === 401) {
-        alert("Votre session a expiré. Veuillez vous reconnecter.");
-      } else {
-        alert("Erreur lors de l'envoi du commentaire.");
-      }
+      alert(err.response?.status === 401
+        ? "Votre session a expiré. Veuillez vous reconnecter."
+        : "Erreur lors de l'envoi du commentaire.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-
   const addToCart = () => {
     const payload = {
       product_id: product.id,
-      quantity: quantity,
+      quantite: quantity,
     };
-  
+
     const newItem = {
-      product: {
-        ...product,
-      },
+      product: { ...product },
       quantity: quantity,
     };
-  
-    // Cas visiteur
+
     if (!token) {
-      let sessionId = localStorage.getItem("session_id");
-      if (!sessionId) {
-        sessionId = uuidv4();
-        localStorage.setItem("session_id", sessionId);
-      }
+      // Visiteur
+      const sessionId = localStorage.getItem("session_id");
+
+      payload.cart_code = cart_code;
       payload.session_id = sessionId;
-  
-      // Ajout localStorage
+
+      // Enregistrer côté localStorage (optionnel)
       let visitorCart = JSON.parse(localStorage.getItem("visitor_cart")) || [];
       const existingIndex = visitorCart.findIndex(item => item.product_id === product.id);
-  
       if (existingIndex !== -1) {
         visitorCart[existingIndex].quantity += quantity;
       } else {
         visitorCart.push({ product_id: product.id, quantity: quantity });
       }
       localStorage.setItem("visitor_cart", JSON.stringify(visitorCart));
-  
-      // Appel backend + mini panier
+
       api.post("add_item/", payload)
         .then(() => {
           setMiniCartItems([newItem]);
@@ -167,17 +138,15 @@ const ProductPage = () => {
         .catch(error => {
           console.error("Erreur ajout panier visiteur:", error.response?.data || error.message);
         });
-  
+
       return;
     }
-  
-    // Cas connecté
+
+    // Connecté
     const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     };
-  
+
     api.post("add_item/", payload, config)
       .then(() => {
         setMiniCartItems([newItem]);
@@ -187,16 +156,12 @@ const ProductPage = () => {
         console.error("Erreur ajout au panier:", error.response?.data || error.message);
       });
   };
-  
-  
- 
+
   const toggleDropdown = (index) => {
     setOpenDropdown(openDropdown === index ? null : index);
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
 
   const colors = product.colors || ["#EED3C6", "#D1AFA2", "#B78E80", "#A67566", "#8D5D4D"];
 
@@ -204,28 +169,23 @@ const ProductPage = () => {
     <div className="container">
       <div className="content">
         <Header />
-
         <div className="product-section">
           <div className="product-image">
             <img src={`http://127.0.0.1:8000${product.image}`} alt={product.name} />
           </div>
-
           <div className="product-details">
             <h2>{product.name}</h2>
             <p className="description">{product.description}</p>
             <p className="price">{product.price}$</p>
-
             <div className="color-swatches">
               {colors.map((color, i) => (
                 <div key={i} className="swatch" style={{ backgroundColor: color }}></div>
               ))}
             </div>
-
             <div className="product-actions">
-            <button className="add-to-cart" onClick={addToCart}>
-             AJOUTER AU PANIER 
-            </button>
-
+              <button className="add-to-cart" onClick={addToCart}>
+                AJOUTER AU PANIER
+              </button>
               <div className="product-details-sections">
                 <div className="dropdown">
                   <div className="dropdown-header" onClick={() => toggleDropdown(0)}>
@@ -246,7 +206,7 @@ const ProductPage = () => {
         <hr className="dividere" />
 
         <div className="more-products">
-          <h3> VOIR PLUS DE  RosaLuminosa</h3>
+          <h3> VOIR PLUS DE RosaLuminosa</h3>
           <div className="product-list">
             {similarProducts.length > 0 ? (
               similarProducts.slice(0, 4).map((item) => (
@@ -263,78 +223,73 @@ const ProductPage = () => {
             )}
           </div>
         </div>
-       
 
         <div className="commentaires-section">
-            {commentaires.length > 0 && (
-               <div className="commentaires-container">
-                 <button className="scroll-btn left" onClick={() => scrollComments('left')}>&lt;</button>
-                <div className="commentaires-scroll" id="commentaires-scroll">
-              {commentaires.map(com => (
-                <div key={com.id} className="commentaire">
-                  <p><strong>{com.nom_utilisateur || "Anonyme"}</strong> </p>
-                  <p> {new Date(com.datePublication).toLocaleDateString()}</p>
-                  <div className="note-stars">
+          {commentaires.length > 0 && (
+            <div className="commentaires-container">
+              <button className="scroll-btn left" onClick={() => scrollComments('left')}>&lt;</button>
+              <div className="commentaires-scroll" id="commentaires-scroll">
+                {commentaires.map(com => (
+                  <div key={com.id} className="commentaire">
+                    <p><strong>{com.nom_utilisateur || "Anonyme"}</strong></p>
+                    <p>{new Date(com.datePublication).toLocaleDateString()}</p>
+                    <div className="note-stars">
                       {[1, 2, 3, 4, 5].map((n) => (
-                        <span key={n} style={{ color: n <= com.noteSur5 ? 'black' : '#ccc', fontSize: '1.2rem' }}>
-                          ★
-                        </span>
+                        <span key={n} style={{ color: n <= com.noteSur5 ? 'black' : '#ccc', fontSize: '1.2rem' }}>★</span>
                       ))}
                     </div>
-                  <p>{com.contenu}</p>
-                 
-                </div>
-              ))}
+                    <p>{com.contenu}</p>
+                  </div>
+                ))}
               </div>
-               <button className="scroll-btn right" onClick={() => scrollComments('right')}>&gt;</button>
-             </div>
-            )}
+              <button className="scroll-btn right" onClick={() => scrollComments('right')}>&gt;</button>
+            </div>
+          )}
 
-            {token ? (
-              <form onSubmit={handleSubmitComment} className="comment-form">
-                <h4 className="avis-text">Donnez votre avis sur nos produits</h4>
-                <div className="rating-stars">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <span
-                key={n}
-                onClick={() => setNote(n)}
-                style={{
-                  cursor: "pointer",
-                  fontSize: "1.5rem",
-                  color: n <= note ? "black" : "#ccc"
-                }}
-              >
-                ★
-              </span>
-            ))}
-          </div>
+          {token ? (
+            <form onSubmit={handleSubmitComment} className="comment-form">
+              <h4 className="avis-text">Donnez votre avis sur nos produits</h4>
+              <div className="rating-stars">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <span
+                    key={n}
+                    onClick={() => setNote(n)}
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "1.5rem",
+                      color: n <= note ? "black" : "#ccc"
+                    }}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
 
-                <label>
-                  Commentaire :
-                  <textarea
-                    value={contenu}
-                    onChange={(e) => setContenu(e.target.value)}
-                    required
-                  />
-                </label>
-                <button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Envoi..." : "Envoyer le commentaire"}
-                </button>
-              </form>
-            ) : (
-              <p>Vous devez être connecté pour laisser un commentaire.</p>
-            )}
-          </div>
+              <label>
+                Commentaire :
+                <textarea
+                  value={contenu}
+                  onChange={(e) => setContenu(e.target.value)}
+                  required
+                />
+              </label>
+              <button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Envoi..." : "Envoyer le commentaire"}
+              </button>
+            </form>
+          ) : (
+            <p>Vous devez être connecté pour laisser un commentaire.</p>
+          )}
+        </div>
 
         <InstaSection />
         <Footer />
-          {/* 👇 Mini panier ici */}
-          <MiniCarte
-            visible={showMiniCart}
-            onClose={() => setShowMiniCart(false)}
-            items={miniCartItems}
-          />
 
+        <MiniCarte
+          visible={showMiniCart}
+          onClose={() => setShowMiniCart(false)}
+          items={miniCartItems}
+        />
       </div>
     </div>
   );

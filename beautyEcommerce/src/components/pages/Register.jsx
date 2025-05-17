@@ -41,6 +41,7 @@ const Register = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+ 
   
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);

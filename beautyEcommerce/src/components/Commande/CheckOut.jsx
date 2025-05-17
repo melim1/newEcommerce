@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import '../../styles/CheckOut.css';
 import api from '../../api';
 import { useNavigate } from 'react-router-dom';
+import Menu from "../UI/Menu";
+import Header from "../UI/Header";
+import Footer from "../UI/Footer";
 
 const CheckOut = () => {
   const token = localStorage.getItem("access_token");
@@ -16,6 +19,14 @@ const CheckOut = () => {
   const [cartItems, setCartItems] = useState([]);
   const [subtotal, setSubtotal] = useState(0);
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [tel, setTel] = useState("");
+  const [error, setError] = useState("");
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,6 +34,32 @@ const CheckOut = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ Validation de l'email
+  if (!email.match(/^[^\s@]+@(example\.com|gmail\.com)$/)) {
+    setError("L'email doit se terminer par @example.com ou @gmail.com.");
+    return;
+  }
+
+  // ✅ Validation du téléphone
+  if (!/^\d{10}$/.test(tel)) {
+    setError("Le numéro de téléphone doit contenir exactement 10 chiffres.");
+    return;
+  }
+  if (!/^0[5-7]/.test(tel)) {
+    setError("Le numéro de téléphone doit commencer par 05, 06 ou 07.");
+    return;
+  }
+
+  // ✅ Validation du code postal (5 chiffres)
+  if (!/^\d{5}$/.test(formData.codePostal)) {
+    setError("Le code postal doit contenir exactement 5 chiffres.");
+    return;
+  }
+
+  // Aucune erreur, on peut continuer
+  setError("");
+
   
     const orderData = {
       ...formData,
@@ -75,16 +112,37 @@ const CheckOut = () => {
   }, [token]);
 
   return (
+    <> 
     <div className="checkout-container">
+       <Header toggleSidebar={toggleSidebar} />
+     
+      <Menu isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+
+      {/* Overlay pour masquer le contenu principal lorsque le sidebar est ouvert */}
+      {isSidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
+
       <div className="checkout-form">
         <h2>Coordonnées </h2>
+        {error && <div className="error-message">{error}</div>}
+
         <div className="form-row">
           <input type="text" placeholder="Nom" />
           <input type="text" placeholder="Prénom" />
         </div>
         <div className="form-row">
-          <input type="email" placeholder="E-mail" />
-          <input type="text" placeholder="Téléphone" />
+          <input
+  type="email"
+  placeholder="E-mail"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+/>
+<input
+  type="text"
+  placeholder="Téléphone"
+  value={tel}
+  onChange={(e) => setTel(e.target.value)}
+/>
+
         </div>
 
         <h2>Adresse de livraison</h2>
@@ -153,8 +211,14 @@ const CheckOut = () => {
           <p>Sous total: ${subtotal.toFixed(2)}</p>
           <p className="summary-total">Total: ${subtotal.toFixed(2)}</p>
         </div>
+        
       </div>
+      
     </div>
+    <Footer />
+
+    </>
+    
   );
 };
 

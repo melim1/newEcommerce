@@ -5,6 +5,7 @@ from .serializers import ProductSerializer, DetailedProductSerializer,VisiteurSe
 from rest_framework.response import Response
 from rest_framework import generics
 import random
+import string
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CustomTokenObtainPairSerializer,CreateCommandeSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -24,6 +25,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Notification, Utilisateur
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 # views.py
 
 from rest_framework.decorators import api_view
@@ -196,19 +198,21 @@ def create_client_if_not_exists(request):
 
 @api_view(["POST"])
 def add_item(request):
+    print("Requête reçue:", request.data)
+
     try:
-        cart_code = request.data.get("cart_code")
         product_id = request.data.get("product_id")
+        quantite = request.data.get("quantite", 1)
         user = request.user
 
-        # Si l'utilisateur est authentifié
+        # Utilisateur connecté
         if user.is_authenticated:
             try:
                 client = Client.objects.get(utilisateur=user)
             except Client.DoesNotExist:
                 return Response({"error": "You must be a registered Client to add items to the cart."}, status=400)
 
-            # Éviter le problème de doublons de panier
+            # Éviter les doublons de panier
             carts = Cart.objects.filter(user=client, paid=False)
             if carts.count() > 1:
                 cart = carts.latest('created_at')
@@ -217,15 +221,18 @@ def add_item(request):
                 cart = carts.first()
 
             if not cart:
-                cart = Cart.objects.create(user=client, paid=False, cart_code=str(int(datetime.datetime.now().timestamp())))
+                cart = Cart.objects.create(user=client, paid=False)
 
+        # Utilisateur anonyme (visiteur)
         else:
-            # Utilisateur non connecté, panier visiteur
-            if not cart_code:
-                return Response({"error": "cart_code is required"}, status=400)
-            cart, created = Cart.objects.get_or_create(cart_code=cart_code, paid=False)
+            session_id = request.data.get("session_id")
+            if not session_id:
+                return Response({"error": "session_id is required for anonymous users"}, status=400)
 
-        # Vérifier le produit
+            visiteur, _ = Visiteur.objects.get_or_create(session_id=session_id)
+            cart, _ = Cart.objects.get_or_create(visiteur=visiteur, paid=False)
+
+        # Vérifier que le produit existe
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
@@ -233,7 +240,7 @@ def add_item(request):
 
         # Ajouter ou mettre à jour l'article dans le panier
         cartitem, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        cartitem.quantity = request.data.get("quantite", 1)
+        cartitem.quantity = quantite
         cartitem.save()
 
         serializer = CartItemSerializer(cartitem)
@@ -241,19 +248,32 @@ def add_item(request):
 
     except Exception as e:
         return Response({"error": str(e)}, status=400)
+from rest_framework.permissions import AllowAny
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def get_cart(request):
+  
+
     try:
-        client = Client.objects.get(utilisateur=request.user)
-        cart = Cart.objects.filter(user=client, paid=False).first()
-        if not cart:
-            return Response({"items": [], "sum_total": 0, "num_of_items": 0})
+        if request.user.is_authenticated:
+            client = Client.objects.get(utilisateur=request.user)
+            cart, _ = Cart.objects.get_or_create(user=client, paid=False)
+        else:
+            session_id = request.GET.get('session_id')
+            if not session_id:
+                return Response({"error": "session_id is required for anonymous users"}, status=400)
+            visiteur = Visiteur.objects.get(session_id=session_id)
+            cart, _ = Cart.objects.get_or_create(visiteur=visiteur, paid=False)
+
         serializer = CartSerializer(cart)
-        return Response(serializer.data)
+        return Response(serializer.data, status=200)
+
     except Client.DoesNotExist:
-        return Response({"error": "Client does not exist."}, status=400)
+        return Response({"error": "Client not found"}, status=404)
+    except Visiteur.DoesNotExist:
+        return Response({"error": "Invalid session_id"}, status=400)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
 
 @api_view(['PATCH'])
 def update_quantity(request):
@@ -300,33 +320,15 @@ def passer_commande(request):
     serializer = CreateCommandeSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         commande = serializer.save()
+
+        Notification.objects.create(
+            utilisateur=request.user,
+            message=f"Votre commande #{commande.id} a été passée avec succès.",
+            type='info'
+        )
+
         return Response({'message': 'Commande créée avec succès.', 'commande_id': str(commande.id)})
     return Response(serializer.errors, status=400)
-@csrf_exempt
-def envoyer_notification(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            utilisateur_id = data.get('utilisateur_id')
-            message = data.get('message')
-
-            utilisateur = get_object_or_404(Utilisateur, id=utilisateur_id)
-
-            notification = Notification.objects.create(
-                utilisateur=utilisateur,
-                message=message,
-            )
-
-            return JsonResponse({
-                'status': 'success',
-                'notification_id': str(notification.id),
-                'message': 'Notification envoyée avec succès.'
-            }, status=201)
-
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-    
-    return JsonResponse({'status': 'error', 'message': 'Méthode non autorisée'}, status=405)
 
 class CreateNotificationAPIView(APIView):
     permission_classes = [IsAuthenticated]  # Assure-toi que l'utilisateur est authentifié
@@ -387,6 +389,17 @@ def effectuer_paiement(request):
         # Marquer la commande comme payée
         commande.status = 'PAID'
         commande.save()
+         
+          # Créer une notification pour l'utilisateur
+        notification_message = f"Votre commande #{commande.id} a été payée avec succès."
+        print(f"Notification: {notification_message}")
+
+        Notification.objects.create(
+            utilisateur=request.user,  # L'utilisateur connecté
+            message=f"Votre commande #{commande.id} a été payée avec succès.",
+            dateEnvoi=commande.dateCommande  # La date de la commande
+        )
+
 
         # Retourner une réponse de succès
         return Response({
@@ -790,7 +803,49 @@ class UserNotificationsView(generics.ListAPIView):
         return Notification.objects.filter(utilisateur=self.request.user).order_by('-dateEnvoi')
 
 
+def generate_cart_code(length=11):
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def transfer_visitor_cart(request):
+    session_id = request.data.get("session_id")
+    items = request.data.get("items", [])
 
+    if not session_id or not items:
+        return Response({"error": "Session ID et items requis."}, status=400)
 
+    try:
+        visiteur = Visiteur.objects.get(session_id=session_id)
+        client = Client.objects.get(utilisateur=request.user)
+
+        # Récupérer ou créer le panier du client
+        cart, _ = Cart.objects.get_or_create(user=client, paid=False, defaults={"cart_code": generate_cart_code()})
+
+        for item in items:
+            product_id = item.get("product_id")
+            quantity = item.get("quantity", 1)
+
+            try:
+                product = Product.objects.get(id=product_id)
+            except Product.DoesNotExist:
+                continue  # On ignore si le produit n’existe pas
+
+            # Ajouter ou mettre à jour les articles
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=cart,
+                product=product,
+                defaults={"quantity": quantity}
+            )
+
+            if not created:
+                cart_item.quantity += quantity
+                cart_item.save()
+
+        return Response({"message": "Panier visiteur transféré avec succès."})
+
+    except Visiteur.DoesNotExist:
+        return Response({"error": "Visiteur introuvable."}, status=404)
+    except Client.DoesNotExist:
+        return Response({"error": "Client introuvable."}, status=404)
 

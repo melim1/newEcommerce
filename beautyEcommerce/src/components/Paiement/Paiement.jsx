@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import api from '../../api';
-import { useParams ,useNavigate} from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import '../../styles/paiement.css';
 import Header from "../UI/Header";
 import Footer from "../UI/Footer";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { FaCheckCircle } from 'react-icons/fa';
 
 const Paiement = () => {
   const [carteNum, setCarteNum] = useState('');
@@ -19,19 +16,32 @@ const Paiement = () => {
   const { commandeId, montant } = useParams();
   const navigate = useNavigate();
 
+  // Validation : numéro de carte = 16 chiffres
+  const isValidCardNumber = (number) => {
+    return /^\d{16}$/.test(number);
+  };
+
+  // Validation : CVV = 3 chiffres
+  const isValidCVV = (cvv) => {
+    return /^\d{3}$/.test(cvv);
+  };
+
   const handlePayment = async (e) => {
     e.preventDefault();
 
+    if (!isValidCardNumber(carteNum)) {
+      setErrorMessage('Le numéro de carte doit contenir exactement 16 chiffres.');
+      setSuccessMessage('');
+      return;
+    }
+
+    if (!isValidCVV(carteCvv)) {
+      setErrorMessage('Le CVV doit contenir exactement 3 chiffres.');
+      setSuccessMessage('');
+      return;
+    }
+
     try {
-      console.log("Envoi du paiement avec : ", {
-        commande_id: commandeId,
-        montant: parseFloat(montant),
-        methode,
-        carte_numero: carteNum,
-        carte_expiration: carteExpiration + "-01",
-        carte_cvv: carteCvv,
-      });
-      
       const response = await api.post(
         `/paiement/`,
         {
@@ -49,28 +59,38 @@ const Paiement = () => {
         }
       );
 
-      // Affichage de la notification de succès avec l'icône noire
-      toast.success('Paiement effectué avec succès !', {
-        icon: <FaCheckCircle style={{ color: 'black', fontSize: '24px' }} /> // Icône noire
-      });
-      
-      // 🔁 Redirection après 2 secondes
+      setSuccessMessage('✅ Paiement effectué avec succès !');
+      setErrorMessage('');
+
+      // Redirection après 2 secondes
       setTimeout(() => {
         navigate(`/confirmation/${commandeId}`);
       }, 2000);
 
     } catch (error) {
-      console.error(error.response?.data || error.message); 
-      // Affichage de la notification d'erreur
-      toast.error('Échec du paiement, veuillez réessayer.');
+      console.error(error.response?.data || error.message);
+      setErrorMessage('❌ Échec du paiement, veuillez réessayer.');
+      setSuccessMessage('');
     }
   };
 
   return (
     <div className="paiement-page">
-      <Header/>
+      <Header />
       <div className="paiement-container">
         <h3>Paiement de la commande</h3>
+
+        {successMessage && (
+          <div style={{ color: 'green', marginTop: '10px', fontWeight: 'bold' }}>
+            {successMessage}
+          </div>
+        )}
+        {errorMessage && (
+          <div style={{ color: 'red', marginTop: '10px' }}>
+            {errorMessage}
+          </div>
+        )}
+
         <form onSubmit={handlePayment}>
           <div className='num-carte'>
             <label htmlFor="carte_numero">Numéro de carte :</label>
@@ -106,11 +126,9 @@ const Paiement = () => {
             <button type="submit">Payer</button>
           </div>
         </form>
+        
       </div>
-      <Footer/>
-      
-      {/* Toast container */}
-      <ToastContainer />
+      <Footer />
     </div>
   );
 };

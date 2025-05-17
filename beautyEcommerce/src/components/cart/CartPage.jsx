@@ -6,7 +6,6 @@ import Header from '../UI/Header';
 import api from '../../api';
 import { v4 as uuidv4 } from 'uuid';
 import { jwtDecode } from 'jwt-decode';
-import Menu from '../UI/Menu';
 
 const isAuthenticated = () => {
   const token = localStorage.getItem("access_token");
@@ -27,11 +26,6 @@ const CartPage = () => {
   const [loading, setLoading] = useState(true);
   const [sessionId, setSessionId] = useState(localStorage.getItem("session_id"));
   const userRole = localStorage.getItem("user_role");
-   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
-  const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
-  };
 
   useEffect(() => {
     if (!sessionId) {
@@ -39,7 +33,7 @@ const CartPage = () => {
       localStorage.setItem("session_id", newSessionId);
       setSessionId(newSessionId);
     }
-  }, []);
+  }, [sessionId]);
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -47,12 +41,12 @@ const CartPage = () => {
         setLoading(true);
 
         const token = localStorage.getItem("access_token");
-        const role = localStorage.getItem("user_role")?.toUpperCase();
+       
 
         let url = 'get_cart/';
         let config = {};
 
-        if (token && role === "CLIENT") {
+        if (token && userRole === "CLIENT") {
           config.headers = {
             Authorization: `Bearer ${token}`
           };
@@ -140,13 +134,7 @@ const CartPage = () => {
   return (
     <>
       <div className="cart-container">
-         <Header toggleSidebar={toggleSidebar} />
-     
-      <Menu isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-
-      {/* Overlay pour masquer le contenu principal lorsque le sidebar est ouvert */}
-      {isSidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
-
+        <Header />
         <hr className="divider" />
         <h2 className="cart-title">Mon panier</h2>
 
