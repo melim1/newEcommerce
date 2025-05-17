@@ -119,6 +119,13 @@
 .titre{
     background-color: transparent;
 }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background-color: transparent;
+}
+
 
 .personal-info-container {
     background-color: transparent;
@@ -218,7 +225,7 @@
 }
 
 .notification-item {
-  background-color: #fff;
+  background-color: transparent;
   padding: 15px;
   border: 1px solid #ddd;
   margin-bottom: 10px;
@@ -227,7 +234,7 @@
 }
 
 .notification-item.read {
-  background-color: #f5f5f5;
+  background-color: transparent;
   color: #aaa;
   
 }
@@ -310,7 +317,7 @@ wishlist-product-info div{
 }
 
 
-.voir-details-button {
+.detail-button {
   background-color: #3D2920;
   color: white;
   border: none;
@@ -321,6 +328,7 @@ wishlist-product-info div{
   transition: background-color 0.3s ease;
 }
 
-.voir-details-button:hover {
+.detail-button:hover {
   background-color: #5a3d31;
 }
+

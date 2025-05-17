@@ -7,12 +7,15 @@ import InstaSection from './UI/InstaSection';
 import Header from './UI/Header';
 import Menu from './UI/Menu';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+
 
 
 function Home() {
   const [products, setProducts] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
   const [wishlist, setWishlist] = useState([]);
+  const navigate = useNavigate();  
 
 
   // Fonction pour gérer l'ouverture/fermeture du sidebar
@@ -61,6 +64,10 @@ function Home() {
         })
         .catch(err => console.error("Erreur ajout :", err));
     }
+  };
+
+  const goToCategory = (category) => {
+    navigate(`/categorie?category=${category}`);
   };
   
 
@@ -127,22 +134,22 @@ function Home() {
 
       {/* Shop by Category */}
       <section className="shop-by-category">
-        <h2>Nos catégories</h2>
-        <div className="categories">
-          <div className="category" id="eyes">
-            <img src="/images/img2.jpg" alt="Cosmetic Products" />
-            <h3>Yeux</h3>
-          </div>
-          <div className="category" id="face">
-            <img src="/images/img1.jpg" alt="Cosmetic Products" />
-            <h3>Teint</h3>
-          </div>
-          <div className="category" id="lips">
-            <img src="/images/img3.jpg" alt="Cosmetic Products" />
-            <h3>Rouge à Lèvres</h3>
-          </div>
+      <h2>Nos catégories</h2>
+      <div className="categories">
+        <div className="category" id="eyes" onClick={() => goToCategory('Yeux')} style={{ cursor: 'pointer' }}>
+          <img src="/images/img2.jpg" alt="Cosmetic Products" />
+          <h3>Yeux</h3>
         </div>
-      </section>
+        <div className="category" id="face" onClick={() => goToCategory('Teint')} style={{ cursor: 'pointer' }}>
+          <img src="/images/img1.jpg" alt="Cosmetic Products" />
+          <h3>Teint</h3>
+        </div>
+        <div className="category" id="lips" onClick={() => goToCategory('Lèvres')} style={{ cursor: 'pointer' }}>
+          <img src="/images/img3.jpg" alt="Cosmetic Products" />
+          <h3>Rouge à Lèvres</h3>
+        </div>
+      </div>
+    </section>
       <hr className="dividers"></hr>
       <InstaSection />
       <hr className="dividers"></hr>

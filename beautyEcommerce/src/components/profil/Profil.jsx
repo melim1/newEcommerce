@@ -1,25 +1,39 @@
+
 import React, { useState, useEffect } from 'react';
 import "../../styles/Profil.css";
 import { FiUser, FiPackage, FiHeart, FiLogOut, FiBell } from "react-icons/fi";
-import { AiFillEdit, AiFillDelete } from "react-icons/ai";
-import { AiFillAppstore } from "react-icons/ai";
-import { Link, useNavigate } from 'react-router-dom';
+import { AiFillProduct, AiFillDelete, AiFillEdit } from "react-icons/ai";
+import { FaShoppingCart, FaUser } from 'react-icons/fa';
+import { RiHeartAdd2Fill } from 'react-icons/ri';
+import { LuPackageCheck } from "react-icons/lu";
+import { MdOutlineDisplaySettings } from "react-icons/md";
+import { AiFillShop } from "react-icons/ai";
 
-import Header from '../UI/Header';
+import { Link } from 'react-router-dom';
 import Footer from '../UI/Footer';
-import Menu from '../UI/Menu';
+import Header from '../UI/Header';
 import api from "../../api";
+import Menu from '../UI/Menu';
+import { useNavigate } from "react-router-dom";
 import ProfilEdit from './ProfilEdit';
 
 const Profil = () => {
+
+  const [notifications , setNotifications]= useState([]);
   const [activeTab, setActiveTab] = useState("info");
   const [userInfo, setUserInfo] = useState({});
+  const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [commandes, setCommandes] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [mesProduits, setMesProduits] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const [erreur, setErreur] = useState('');
+  const [wishlist, setWishlist] = useState([]);
+  const [boutiqueOpen, setBoutiqueOpen] = useState(false); // état pour ouvrir/fermer sous-menu "Créer ma boutique"
+
+
+  // État pour la modification de produit
   const [productForm, setProductForm] = useState({
     id: null,
     name: '',
@@ -29,62 +43,220 @@ const Profil = () => {
     stockDisponible: '',
     ingredient: '',
     image: null,
-    image_url: ''
+    image_url: '',
   });
   const [editingProduct, setEditingProduct] = useState(false);
 
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    api.get("user_info/")
-      .then(res => setUserInfo(res.data))
-      .catch(err => console.log(err));
-  }, []);
 
-  useEffect(() => {
-    if (activeTab === "orders") {
-      api.get("commandes/").then(res => setCommandes(res.data));
-    }
-    if (activeTab === "wishlist") {
-      api.get("/wishlist/").then(res => setWishlist(res.data));
-    }
-    if (activeTab === "notifications") {
-      api.get("/notifications/", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` },
-      }).then(res => {
-        setNotifications(res.data);
-        setUnreadCount(res.data.filter(n => !n.is_read).length);
-      });
-    }
-    if (activeTab === "addproduct") {
-      fetchProduits();
-    }
-  }, [activeTab]);
+
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
-    navigate("/login");
+    localStorage.removeItem("refresh_token");
+    window.location.href = "/login";
   };
 
-  const handleMarkAsRead = (id) => {
-    api.post(`/notifications/${id}/mark_as_read/`, null, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` },
-    }).then(() => {
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
-      setUnreadCount(prev => prev - 1);
-    });
-  };
+  useEffect(() => {
+    setLoading(true);
+    api.get("user_info/")
+      .then(res => {
+        setUserInfo(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.log(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+ useEffect(() => {
+    if (activeTab === "orders") {
+      api.get("commandes/")
+        .then((res) => setCommandes(res.data))
+        .catch((err) => console.error("Erreur récupération commandes", err));
+    }
+
+    if (activeTab === "wishlist") {
+      api.get("/wishlist/")
+        .then((res) => setWishlist(res.data))
+        .catch((err) => console.error("Erreur récupération wishlist", err));
+    }
+
+    if (activeTab === "notifications") {
+      api.get("/notifications/", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      })
+      .then((res) => {
+        setNotifications(res.data);
+        const unread = res.data.filter(notif => !notif.is_read).length;
+        
+      })
+      .catch((err) => {
+        console.error("Erreur lors de la récupération des notifications", err);
+      });
+    }
+
+  }, [activeTab]);
 
   const fetchProduits = () => {
     api.get("/product/", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` },
-    }).then(res => setMesProduits(res.data));
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+    })
+      .then((res) => {
+        setMesProduits(res.data);
+      })
+      .catch((err) => {
+        console.error("Erreur lors de la récupération des produits", err);
+      });
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
   const handleDelete = async (id) => {
-    await api.delete(`/produits/${id}/supprimer/`);
-    alert('Produit supprimé');
-    fetchProduits();
+    try {
+      await api.delete(`/produits/${id}/supprimer/`);
+      alert('Produit supprimé avec succès');
+      fetchProduits();
+    } catch (error) {
+      console.error('Erreur lors de la suppression du produit', error);
+    }
+  };
+
+  const handleProductChange = (e) => {
+    const { name, value } = e.target;
+    setProductForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProductForm(prev => ({
+        ...prev,
+        image: file
+      }));
+    }
+  };
+
+
+ 
+
+  const envoyerNotification = (id_commande,message, utilisateur_id
+  ) => {
+    const data = {
+
+      message: `Votre commande ${id_commande} a été ${message}`,
+      utilisateur_id: utilisateur_id,
+    };
+    console.log(data);
+    api.post('/envoyer-notification/', data, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => {
+      console.log(res.data);
+    }).catch(err => {
+      console.error(err);
+    });
+  };
+ useEffect(() => {
+    api.get('api/client/commandes/')
+      .then(res => {
+        console.log("Réponse commandes :", res.data); 
+        setCommandes(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setErreur("Erreur lors du chargement des commandes");
+        setLoading(false);
+      });
+  }, [activeTab]);
+  useEffect(() => {
+  if (activeTab === "notifications" && userInfo?.id && userInfo?.role === "client") {
+    api.get("/notifications/", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`
+      }
+    })
+    .then(res => {
+      // Ne garder que les notifications du client connecté
+      const clientNotifs = res.data.filter(notif => notif.utilisateur === userInfo.id);
+      setNotifications(clientNotifs);
+    })
+    .catch(err => {
+      console.error("Erreur lors de la récupération des notifications", err);
+    });
+  }
+}, [activeTab, userInfo]);
+
+  const changerStatut = (commandeId, nouveauStatut) => {
+    api.patch(`api/client/commandes/${commandeId}/status/`, { statut: nouveauStatut })
+      .then(res => {
+        // Met à jour localement le statut
+        setCommandes(prev =>
+          prev.map(cmd =>
+            cmd.id === commandeId ? { ...cmd, statut: nouveauStatut } : cmd
+          )
+        );
+      })
+      .catch(err => {
+        setErreur("Erreur lors de la mise à jour du statut");
+      });
+  };
+
+
+  if (loading) return <p>Chargement des commandes...</p>;
+  if (erreur) return <p style={{ color: 'red' }}>{erreur}</p>;
+  
+  const handleProductSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!editingProduct) return;
+
+    const formData = new FormData();
+    formData.append("name", productForm.name);
+    formData.append("description", productForm.description);
+    formData.append("price", productForm.price);
+    formData.append("category", productForm.category);
+    formData.append("stockDisponible", productForm.stockDisponible);
+    formData.append("ingredient", productForm.ingredient);
+
+    if (productForm.image instanceof File) {
+      formData.append("image", productForm.image);
+    }
+
+    try {
+      await api.put(`/produits/${productForm.id}/modifier/`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert('Produit modifié avec succès');
+
+      setProductForm({
+        id: null,
+        name: '',
+        description: '',
+        price: '',
+        category: '',
+        stockDisponible: '',
+        ingredient: '',
+        image: null,
+        image_url: ''
+      });
+      setEditingProduct(false);
+      fetchProduits();
+    } catch (error) {
+      console.error('Erreur lors de la modification du produit', error);
+      alert("Erreur : " + (error.response?.data?.detail || error.message));
+    }
   };
 
   const handleEditProduct = (produit) => {
@@ -102,163 +274,367 @@ const Profil = () => {
     setEditingProduct(true);
   };
 
-  const handleProductChange = (e) => {
-    const { name, value } = e.target;
-    setProductForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setProductForm(prev => ({ ...prev, image: file }));
-  };
-
-  const handleProductSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    for (let key in productForm) {
-      if (key !== 'image_url') formData.append(key, productForm[key]);
-    }
-
-    await api.put(`/produits/${productForm.id}/modifier/`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    alert('Produit modifié');
-    setEditingProduct(false);
-    fetchProduits();
-  };
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case "info":
-        return isEditing ? (
-          <ProfilEdit userInfo={userInfo} onUpdate={data => { setUserInfo(data); setIsEditing(false); }} />
-        ) : (
-          <div className="personal-info-container">
-            <h2 className="personal-info-title">Mes informations</h2>
-            <div className="personal-info-form">
-              <div className="form-group"><label>Nom :</label><div>{userInfo.nom}</div></div>
-              <div className="form-group"><label>Prénom :</label><div>{userInfo.prenom}</div></div>
-              <div className="form-group"><label>Email :</label><div>{userInfo.email}</div></div>
-              <div className="form-group"><label>Téléphone :</label><div>{userInfo.tel}</div></div>
-              
-            </div>
-            <button className="save-changes-btn" onClick={() => setIsEditing(true)}>Modifier</button>
-          </div>
-        );
-      case "orders":
-        return (
-          <div className="orders">
-            <h2 className="titre">Mes commandes</h2>
-            <table>
-              <thead>
-                <tr><th>ID</th><th>Date</th><th>Statut</th><th>Détails</th></tr>
-              </thead>
-              <tbody>
-                {commandes.map(c => (
-                  <tr key={c.id}>
-                    <td>{c.id}</td>
-                    <td>{c.date_commande}</td>
-                    <td>{c.status}</td>
-                    <td><button className="details-button">Voir</button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        );
-      case "wishlist":
-        return (
-          <div className="wishlist">
-            <h2>Ma Wishlist</h2>
-            <div className="wishlist-items">
-              {wishlist.map(p => (
-                <div className="wishlist-card" key={p.id}>
-                  <img src={p.image} alt={p.name} className="wishlist-product-image" />
-                  <div className="wishlist-product-info">
-                    <h3>{p.name}</h3>
-                    <p>{p.price} €</p>
-                  </div>
-                  <Link to={`/product/${p.slug}`} className="voir-details-button">Voir le produit</Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case "notifications":
-        return (
-          <div className="notifications">
-            <h2>Mes notifications</h2>
-            <ul className="notification-list">
-              {notifications.map(n => (
-                <li key={n.id} className={`notification-item ${n.is_read ? 'read' : ''}`}>
-                  <div className="message">{n.message}</div>
-                  <div className="date">{n.created_at}</div>
-                  {!n.is_read && <button onClick={() => handleMarkAsRead(n.id)}>Marquer comme lue</button>}
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-      case "addproduct":
-        return (
-          <div className="orders">
-            <h2>Mes Produits</h2>
-            <table>
-              <thead><tr><th>Nom</th><th>Prix</th><th>Actions</th></tr></thead>
-              <tbody>
-                {mesProduits.map(p => (
-                  <tr key={p.id}>
-                    <td>{p.name}</td>
-                    <td>{p.price} €</td>
-                    <td>
-                      <button onClick={() => handleEditProduct(p)}><AiFillEdit /></button>
-                      <button onClick={() => handleDelete(p.id)}><AiFillDelete /></button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {editingProduct && (
-              <form onSubmit={handleProductSubmit}>
-                <input name="name" value={productForm.name} onChange={handleProductChange} placeholder="Nom" />
-                <input name="price" value={productForm.price} onChange={handleProductChange} placeholder="Prix" />
-                <input name="stockDisponible" value={productForm.stockDisponible} onChange={handleProductChange} placeholder="Stock" />
-                <input name="ingredient" value={productForm.ingredient} onChange={handleProductChange} placeholder="Ingrédients" />
-                <input type="file" onChange={handleFileChange} />
-                <button className="save-changes-btn" type="submit">Enregistrer</button>
-              </form>
-            )}
-          </div>
-        );
-      default:
-        return null;
-    }
+  const handleUpdate = (updatedData) => {
+    setUserInfo(updatedData);
+    setIsEditing(false);
   };
 
   return (
     <>
-      <Header />
+      <Menu isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <Header toggleSidebar={toggleSidebar} />
+
       <div className="profile-container">
-        <div className="profile-sidebar">
+        <aside className="profile-sidebar">
           <div className="profile-header">
-           
-            <h3 className="profile-name">{userInfo.nom} {userInfo.prenom}</h3>
+            <h2 className="profile-name">{userInfo.name}</h2>
           </div>
           <ul className="profile-menu">
-            <li onClick={() => setActiveTab("info")} className={activeTab === "info" ? "active" : ""}><FiUser className="icon" /> Infos personnelles</li>
-            <li onClick={() => setActiveTab("orders")} className={activeTab === "orders" ? "active" : ""}><FiPackage className="icon" /> Commandes</li>
-            <li onClick={() => setActiveTab("wishlist")} className={activeTab === "wishlist" ? "active" : ""}><FiHeart className="icon" /> Wishlist</li>
+            <li className={activeTab === "info" ? "active" : ""} onClick={() => setActiveTab("info")}>
+              <FiUser className="icon" /> Informations personnelles
+            </li>
+            <li className={activeTab === "orders" ? "active" : ""} onClick={() => setActiveTab("orders")}>
+              <FiPackage className="icon" /> Mes commandes
+            </li>
+            <li className={activeTab === "wishlist" ? "active" : ""} onClick={() => setActiveTab("wishlist")}>
+              <FiHeart className="icon" />Mes favoris
+            </li>
+           
             <li onClick={() => setActiveTab("notifications")} className={activeTab === "notifications" ? "active" : ""}>
               <FiBell className="icon" /> Notifications
-              {unreadCount > 0 && <span className="notification-count">{unreadCount}</span>}
             </li>
-            <li onClick={() => setActiveTab("addproduct")} className={activeTab === "addproduct" ? "active" : ""}><AiFillAppstore className="icon" /> Mes Produits</li>
-            <li onClick={handleLogout}><FiLogOut className="icon" /> Déconnexion</li>
+            {/* Menu principal "Créer ma boutique" */}
+        <li 
+          className={boutiqueOpen ? "active" : ""} 
+          onClick={() => setBoutiqueOpen(!boutiqueOpen)} 
+          style={{ cursor: "pointer"}}
+        >
+          <AiFillShop className="icon" /> Créer ma boutique
+          <span style={{ float: "right" }}>{boutiqueOpen ? "▲" : "▼"}</span>
+        </li>
+
+        {/* Sous-menu, affiché seulement si boutiqueOpen est vrai */}
+        {boutiqueOpen && (
+          <>
+            <li
+              className={activeTab === "addproduct" ? "active" : ""}
+              onClick={() => setActiveTab("addproduct")}
+              style={{ paddingLeft: "30px", cursor: "pointer" }}
+            >
+              <AiFillProduct className="icon" /> Mes produits
+            </li>
+            <li
+              className={activeTab === "manageorders" ? "active" : ""}
+              onClick={() => setActiveTab("manageorders")}
+              style={{ paddingLeft: "30px", cursor: "pointer" }}
+            >
+              <MdOutlineDisplaySettings className='icon' /> Gérer les commandes
+            </li>
+          </>
+        )}
+
+            
+            <li className="logout" onClick={handleLogout}>
+              <FiLogOut className="icon" /> Déconnexion
+            </li>
           </ul>
+        </aside>
+
+        <main className="profile-content">
+          {activeTab === "orders" && (
+            <>
+              <h1 className="titre">Mes commandes</h1>
+              <div className="orders">
+                {commandes.length === 0 ? (
+                  <p>Vous n'avez pas encore passé de commande.</p>
+                ) : (
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>DATE</th>
+                        <th>PRIX</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {commandes.map((commande) => (
+                        <tr key={commande.id}>
+                          <td>{new Date(commande.dateCommande).toLocaleDateString()}</td>
+                          <td>${Number(commande.montantTotal).toFixed(2)}</td>
+                          <td className={`statut ${commande.statut.toLowerCase()}`}>{commande.statut}</td>
+                          <td>
+                            <button
+                              className="detail-button"
+                              onClick={() => (window.location.href = `/commande/${commande.id}`)}
+                            >
+                              Voir détails
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </>
+          )}
+
+          {activeTab === "info" && (
+            <>
+              <h1 className="titre">Informations personnelles</h1>
+              {!isEditing ? (
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Adresse email*</label>
+                    <input type="email" value={userInfo?.email || ''} disabled />
+                  </div>
+                  <div className="form-group">
+                    <label>Prénom*</label>
+                    <input type="text" value={userInfo?.nom || ''} disabled />
+                  </div>
+                  <div className="form-group">
+                    <label>Nom*</label>
+                    <input type="text" value={userInfo?.prenom || ''} disabled />
+                  </div>
+                  <div className="form-group">
+                    <label>Téléphone*</label>
+                    <input type="text" value={userInfo?.tel || ''} disabled />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    className="save-changes-btn"
+                  >
+                    Modifier mes informations
+                  </button>
+                </div>
+              ) : (
+                <ProfilEdit userInfo={userInfo} onUpdate={handleUpdate} />
+              )}
+            </>
+          )}
+
+
+          {activeTab === "addproduct" && (
+            <>
+              {editingProduct ? (
+                <div className="edit-product-form">
+                  <form onSubmit={handleProductSubmit} encType="multipart/form-data">
+                    <div className="form-group">
+                      <label>Nom:</label>
+                      <input type="text" name="name" value={productForm.name} onChange={handleProductChange} required />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Description:</label>
+                      <input type="text" name="description" value={productForm.description} onChange={handleProductChange} required />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Prix:</label>
+                      <input type="number" name="price" value={productForm.price} onChange={handleProductChange} required />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Catégorie:</label>
+                      <input type="text" name="category" value={productForm.category} onChange={handleProductChange} required />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Stock Disponible:</label>
+                      <input type="number" name="stockDisponible" value={productForm.stockDisponible} onChange={handleProductChange} required />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Ingrédient:</label>
+                      <input type="text" name="ingredient" value={productForm.ingredient} onChange={handleProductChange} required />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Image:</label>
+                      {productForm.image_url && (
+                        <div style={{ marginBottom: "10px" }}>
+                          <img src={`http://127.0.0.1:8000${productForm.image_url}`} alt="Produit" width="100" />
+                        </div>
+                      )}
+                      <input type="file" name="image" onChange={handleFileChange} />
+                    </div>
+                    <td>
+                      <div style={{ display: 'flex', gap: '16px' }}>
+                        <button type="submit" className="details-button">Confirmer</button>
+                        <button type="button" className="details-button" onClick={() => setEditingProduct(false)}>
+                          Annuler
+                        </button>
+                      </div>
+                    </td>
+
+                  </form>
+                </div>
+              ) : (
+                <>
+                  <div>
+
+                  </div>
+                  <h1 className="titre">Mes produits</h1>
+
+                  <table className="orders">
+                    <thead>
+                      <tr>
+                        <th>Produits</th>
+                        <th>Nom</th>
+                        <th>Prix</th>
+                        <th>Catégories</th>
+                        <th>Actions</th>
+                        <th>
+                          Nouveau produit <Link to="/addproduct" className="add-button" title="Add Product">
+                            <RiHeartAdd2Fill color="black" size={30} />
+
+                          </Link></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mesProduits.map((product) => (
+                        <tr key={product.id}>
+                          <td><img src={product.image} height={100} width={100} alt={product.name} /></td>
+                          <td>{product.name}</td>
+                          <td>${product.price}</td>
+                          <td>{product.category}</td>
+                          <td>
+                            <td>
+                              <button
+                                className="details-button"
+                                onClick={() => handleEditProduct(product)}
+                                title="Modifier"
+                              >
+                                Modifier
+                              </button>
+                            </td>
+                            <td>
+                              <button
+                                className="details-button"
+                                onClick={() => handleDelete(product.id)}
+                                title="Supprimer"
+                              >
+                                Supprimer
+                              </button>
+                            </td>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+
+                </>
+              )}
+            </>
+          )}
+
+         {activeTab === "wishlist" && (
+  <>
+    <h1 className="titre">Mes favoris</h1>
+    <div className="wishlist">
+      {wishlist.length === 0 ? (
+        <p>Votre wishlist est vide.</p>
+      ) : (
+        <div className="wishlist-items">
+          {wishlist.map((item) => (
+            <div key={item.id} className="wishlist-card">
+              <img
+                src={`http://localhost:8000${item.product.image}`}
+                alt={item.product.name}
+                className="wishlist-product-image"
+              />
+              <div className="wishlist-product-info">
+                <h3>{item.product.name}</h3>
+              </div>
+              <div className="wishlist-product-inf">
+                <p>{item.product.price} $</p>
+              </div>
+              <div className="wishlist-buttons">
+                <button
+                  className="voir-details-button"
+                  onClick={() => window.location.href = `/product/${item.product.slug}`}
+                >
+                  Voir le produit
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="profile-content">
-          {renderContent()}
-        </div>
+      )}
+    </div>
+  </>
+)}
+
+
+          {activeTab === "notifications" && (
+                <>
+              <h1 className="titre">Mes Notifications</h1>
+              <div className="notifications">
+                {notifications.length === 0 ? (
+                  <p>Vous n'avez aucune notification.</p>
+                ) : (
+                  <ul className="notification-list">
+                    {notifications.map((notif) => (
+                      <li 
+                        key={notif.id} 
+                        className={`notification-item ${notif.is_read ? 'read' : ''}`}
+                        onClick={() => handleMarkAsRead(notif.id)}
+                      >
+                        <div className="message">{notif.message}</div>
+                        <div className="date">{new Date(notif.dateEnvoi).toLocaleString()}</div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </>
+
+
+
+          )}
+          {activeTab === "manageorders" && (
+            <>
+              <h1 className="titre">Gérer les commandes</h1>
+              <table className="orders">
+                <thead>
+                  <tr>
+
+
+                    <th>Client</th>
+                    <th>Total</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+
+
+                  </tr>
+                </thead>
+                <tbody>
+                  {commandes.map(commande => (
+                    <tr key={commande.id}>
+                      <td>{commande.client?.utilisateur?.prenom} {commande.client?.utilisateur?.nom}</td>
+                      <td>{commande.montantTotal} €</td>
+                      <td className={`statut ${commande.statut.toLowerCase()}`}>{commande.statut}</td>
+                      <td className="actions">
+                        <button className="details-button" onClick={() => { changerStatut(commande.id, 'VALIDÉE'); envoyerNotification(commande.id,"Validée", commande.client?.utilisateur?.id) }}>Validée</button>
+                        <button className="details-button" onClick={() => { changerStatut(commande.id, 'EXPÉDIÉ'); envoyerNotification(commande.id,"EXPÉDIÉ", commande.client?.utilisateur?.id) }}>Expédiée</button>
+                        <button className="details-button" onClick={() => { changerStatut(commande.id, 'ANNULÉE'); envoyerNotification(commande.id,"ANNULÉE", commande.client?.utilisateur?.id) }}>Annulée</button>
+
+                      </td>
+
+                    </tr>
+                  ))}
+                </tbody>
+
+              </table>
+
+
+            </>
+          )}
+        </main>
       </div>
       <Footer />
     </>
@@ -266,3 +642,5 @@ const Profil = () => {
 };
 
 export default Profil;
+
+

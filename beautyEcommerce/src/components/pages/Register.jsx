@@ -5,8 +5,9 @@ import "../../styles/Register.css";
 import Header from "../UI/Header";
 import Footer from "../UI/Footer";
 import { jwtDecode } from "jwt-decode";
+import Menu from "../UI/Menu";
 
-// ✅ Fonction utilitaire pour transférer le panier visiteur
+// ✅ Transfert panier visiteur
 const transferVisitorCart = async (token) => {
   const sessionId = localStorage.getItem("session_id");
   const visitorCart = JSON.parse(localStorage.getItem("visitor_cart")) || [];
@@ -39,11 +40,42 @@ const Register = () => {
   const [tel, setTel] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+  
+  
+
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // ✅ Validation du téléphone
+    if (!/^\d{10}$/.test(tel)) {
+      setError("Le numéro de téléphone doit contenir exactement 10 chiffres.");
+      return;
+    }
+    if (!/^0[5-7]/.test(tel)) {
+      setError("Le numéro de téléphone doit commencer par 05, 06 ou 07.");
+      return;
+    }
+
+    // ✅ Validation du mot de passe
+    if (password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
+    // ✅ Validation email (doit finir par @example.com ou @gmail.com)
+    if (!email.match(/^[^\s@]+@(example\.com|gmail\.com)$/)) {
+      setError("L'email doit se terminer par @example.com ou @gmail.com.");
+      return;
+    }
+
     try {
-      // 1. Création du compte
+      // 1. Enregistrement
       await api.post("/api/register/", {
         email,
         password,
@@ -52,9 +84,8 @@ const Register = () => {
         tel,
       });
 
-      // 2. Connexion automatique après inscription
+      // 2. Connexion automatique
       const loginResponse = await api.post("/api/token/", { email, password });
-
       const access = loginResponse.data.access;
       const refresh = loginResponse.data.refresh;
 
@@ -63,95 +94,86 @@ const Register = () => {
 
       const decoded = jwtDecode(access);
       const role = decoded.role;
-
       localStorage.setItem("user_role", role);
 
-      const config = {
-        headers: {
-          Authorization: `Bearer ${access}`,
-        },
-      };
-
+      // 3. Création du client s'il n'existe pas
       if (role === "CLIENT") {
         const cart_code = localStorage.getItem("cart_code");
-        await api.post("/create_client_if_not_exists/", { cart_code }, config);
+        await api.post("/create_client_if_not_exists/", { cart_code }, {
+          headers: { Authorization: `Bearer ${access}` },
+        });
 
         await transferVisitorCart(access);
-
         localStorage.removeItem("cart_code");
         console.log("✅ Panier fusionné après inscription.");
       }
 
-      // Redirection après inscription
+      // 4. Redirection vers accueil
       navigate("/");
     } catch (err) {
-      console.error(err);
-      setError("Erreur lors de l'inscription");
+      console.error("Erreur complète :", err.response?.data || err.message);
+      if (err.response?.data) {
+        const firstKey = Object.keys(err.response.data)[0];
+        const message = err.response.data[firstKey];
+        setError(Array.isArray(message) ? message[0] : message);
+      } else {
+        setError("Erreur lors de l'inscription.");
+      }
     }
   };
 
   return (
     <>
-      <div className="register-container">
-        <Header />
-        {/* Onglets connexion & inscription */}
-        <div className="tabs">
-          <span onClick={() => navigate("/login")}>SE CONNECTER</span>
-          <span className="active" onClick={() => navigate("/register")}>
-            CRÉER UN COMPTE
-          </span>
-        </div>
-        <p>Enter your login details</p>
+     <div className="register-container">
+       <Header toggleSidebar={toggleSidebar} />
+     
+      <Menu isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
-        <div className="register-box">
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          <form onSubmit={handleRegister}>
-            <input
-              type="text"
-              className="input-field"
-              placeholder="Nom"
-              value={nom}
-              onChange={(e) => setNom(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              className="input-field"
-              placeholder="Prénom"
-              value={prenom}
-              onChange={(e) => setPrenom(e.target.value)}
-              required
-            />
-            <input
-              type="email"
-              className="input-field"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              className="input-field"
-              placeholder="Téléphone"
-              value={tel}
-              onChange={(e) => setTel(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              className="input-field"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button className="register-btn" type="submit">
-              S'inscrire
-            </button>
-          </form>
-        </div>
+      {/* Overlay pour masquer le contenu principal lorsque le sidebar est ouvert */}
+      {isSidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
+
+  <div className="register-box">
+    <div className="register-form">
+      <h2>créer un compte </h2>
+      {error && <div className="error-message">{error}</div>}
+
+     
+
+      <form className="frm" onSubmit={handleRegister}>
+        <div className="npt">
+        <input type="text" className="input-field" placeholder="Nom" value={nom} onChange={(e) => setNom(e.target.value)} required />
+       </div>
+        <input type="text" className="input-field" placeholder="Prénom" value={prenom} onChange={(e) => setPrenom(e.target.value)} required />
+        <input type="email" className="input-field" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <input type="text" className="input-field" placeholder="Téléphone" value={tel} onChange={(e) => setTel(e.target.value)} required />
+        <input type="password" className="input-field" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required />
+
+        <button className="register-btn" type="submit">Créer un compte</button>
+
+        
+        <div className="login-link">Already have an account? <a href="/login">Log in</a></div>
+      </form>
+    </div>
+
+    <div className="register-image-section">
+       <video
+    className="register-video-bg"
+    autoPlay
+    loop
+    muted
+    playsInline
+  >
+    <source src="/images/video9.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+      <div className="testimonial">
+        “Untitled Labs were a breeze to work alongside, we can’t recommend them enough. We launched 6 months earlier than expected and are growing 30% MoM.”
+        <div className="testimonial-author">Amélie Laurent – Founder, Sisyphus</div>
       </div>
+    </div>
+  </div>
+</div>
+
       <Footer />
     </>
   );

@@ -1,0 +1,203 @@
+/* Conteneur des boutons */
+.listproduct .category-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 20px;
+  position: relative;
+  z-index: 10;
+  
+}
+
+/* Style animé pour les boutons carrés */
+.listproduct .category-buttons button {
+  position: relative;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Arial', sans-serif;
+  border: 2px solid #e6c4a8;
+  border-radius: 10px;
+  background-color: white;
+  color: #3a3a3a;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  width: 120px;
+  height: 50px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.listproduct .category-buttons button span {
+  font-family:  'Playfair Display', serif;
+  font-size: 15px !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.listproduct .category-buttons button:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.listproduct .category-buttons button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 81, 81, 0.919);
+}
+
+.listproduct .category-buttons button:hover span {
+  transform: scale(1.2);
+}
+
+/* Exemple si ton header est fixe */
+.listproduct header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background-color: #fff;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Grille de produits */
+.listproduct .product-grid {
+  flex-wrap: wrap;
+  gap: 2rem;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  justify-content: center;
+  padding: 20px 0;
+  background-color: #FBF6F2;
+}
+
+/* Carte de produit */
+.listproduct .product-card {
+  width: 250px;
+  height: 400px;
+  border: none;
+  border-radius: 15px;
+  background: linear-gradient(135deg, #fff6f2, #fceee6); /* fond doux */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.listproduct .product-card img {
+  width: 90%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin: 15px auto 0 auto; /* ✅ centre horizontalement */
+  
+  display: block;
+}
+
+
+
+
+.listproduct .product-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  margin: 15px 0 5px;
+  color: #5a4a42;
+  text-align: center;
+}
+
+.listproduct .product-card p {
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  color: #888;
+  text-align: center;
+  padding: 0 10px;
+  margin-bottom:15px ;
+}
+
+/* Conteneur de la vidéo */
+.listproduct .video-container {
+  width: 100%;
+  height: 150px;
+  position: relative;
+  padding-top: 56.25%;
+  overflow: hidden;
+}
+
+.listproduct .video-container video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10%;
+  object-fit: cover;
+}
+
+.listproduct .video-banner {
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 55px;
+}
+
+.listproduct .video-banner video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.listproduct .category-title {
+  text-align: center;
+  font-size: 24px;
+  margin: 30px 0 10px;
+  color: #786e6e;
+  text-transform: uppercase;
+}
+
+/* Rechercher */
+.listproduct .search-wrapper {
+  position: relative;
+  max-width: 300px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.listproduct .search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.listproduct .search-wrapper input {
+  font-family: 'Playfair Display', sans-serif;
+  background-color: #fff6f2;
+  border: 2px solid #e6c4a8;
+  width: 100%;
+  padding: 10px 15px 10px 36px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+/* Inverser barre de recherche et boutons */
+.listproduct .top-controls {
+  display: flex;
+  flex-direction: column-reverse; /* inverse : boutons puis barre */
+  align-items: center;
+  gap: 1.5rem;
+  margin: 2rem auto;
+  width: 100%;
+  max-width: 800px;
+}

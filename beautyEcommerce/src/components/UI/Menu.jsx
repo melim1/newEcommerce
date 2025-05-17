@@ -1,55 +1,72 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { FaHome, FaShoppingBag, FaSignInAlt, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { MdKeyboardArrowDown, MdKeyboardArrowUp } from 'react-icons/md';
+
+import { useNavigate } from 'react-router-dom';
 import "../../styles/Menu.css";
 
-
 const Menu = ({ isSidebarOpen, toggleSidebar }) => {
-  
+  const [showProduits, setShowProduits] = useState(false);
   const isAuthenticated = localStorage.getItem("access_token");
-
+   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
-    window.location.href = "/login";  // Redirige vers la page de connexion après la déconnexion
+    window.location.href = "/login";
   };
+
+  const toggleProduits = () => {
+    setShowProduits(!showProduits);
+  };
+   const goToCategory = (category) => {
+    navigate(`/categorie?category=${category}`);
+    toggleSidebar(); // pour fermer le menu après clic
+  };
+
 
   return (
     <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-      {/* Sidebar */}
       <div className="sidebar-header">
         <h2>Menu</h2>
         <button className="close-btn" onClick={toggleSidebar}>
           &times;
         </button>
       </div>
+
       <ul className="sidebar-links">
         <li>
-          <a href="/">Home</a>
-        </li>
-        <li>
-          <a href="/shop">Faire mes achats</a>
-        </li>
-        <li>
-          <a href="/about">À propos</a>
-        </li>
-        <li>
-          <a href="/contact">Contact</a>
+          <Link to="/"><FaHome className="icon" />  <span>Accueil</span></Link>
         </li>
 
-        {/* Si l'utilisateur n'est pas connecté, afficher "S'inscrire" et "Se connecter" */}
-        {!isAuthenticated ? (
+        <li className="link-style" onClick={toggleProduits}>
+          <FaShoppingBag className="icon" />
+          Produits {showProduits ? <MdKeyboardArrowUp /> : <MdKeyboardArrowDown />}
+        </li>
+        {showProduits && (
           <>
-            <li>
-              <a href="/register">S'inscrire</a>
-            </li>
-            <li>
-              <a href="/login">Se connecter</a>
-            </li>
+           <li onClick={() => goToCategory('Yeux')}>
+          
+          <span>Yeux</span>
+        </li>
+          <li onClick={() => goToCategory('Teint')}>
+         
+          <span>Teint</span>
+        </li>
+        <li onClick={() => goToCategory('Lèvres')}>
+       
+          <span>Lèvres</span>
+        </li>
           </>
+        )}
+
+        {!isAuthenticated ? (
+          <li><Link to="/login"><FaSignInAlt className="icon" />   <span>Se connecter</span></Link></li>
         ) : (
-          // Si l'utilisateur est connecté, afficher "Déconnexion"
-          <li>
-            <a href="#" onClick={handleLogout}>Déconnexion</a>
-          </li>
+          <>
+            <li><Link to="/profil"><FaUser className="icon" /><span> Mon Profil </span></Link></li>
+            <li><a href="#" onClick={handleLogout}><FaSignOutAlt className="icon" /><span> Déconnexion</span> </a></li>
+          </>
         )}
       </ul>
     </aside>

@@ -6,6 +6,7 @@ import "../../styles/Login.css";
 import Header from "../UI/Header";
 import Footer from "../UI/Footer";
 import { v4 as uuidv4 } from "uuid";
+import Menu from "../UI/Menu";
 
 // ✅ Transfert du panier visiteur
 const transferVisitorCart = async (token) => {
@@ -41,9 +42,34 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+const toggleSidebar = () => {
+  setIsSidebarOpen((prev) => !prev);
+};
+
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setEmailError("");
+    setPasswordError("");
+    setError("");
+
+      let hasError = false;
+    // Validation email
+    if (!email.match(/^[^\s@]+@(example\.com|gmail\.com)$/)) {
+     setEmailError("L'email doit se terminer par @example.com ou @gmail.com.");
+        hasError = true;
+    }
+
+    // Validation mot de passe
+    if (password.length < 8) {
+      setPasswordError("Le mot de passe doit contenir au moins 8 caractères.");
+       hasError = true;
+    } if (hasError) return;
     try {
       const response = await api.post("/api/token/", { email, password });
 
@@ -101,49 +127,69 @@ const Login = () => {
     }
   };
 
-  return (
+return (
     <>
-      <div className="login-container">
-        <Header />
+     <div className="register-container">
+      <Header toggleSidebar={toggleSidebar} />
+     
+      <Menu isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
-        {/* Onglets connexion & inscription */}
-        <div className="tabs">
-          <span className="active" onClick={() => navigate("/login")}>
-            SE CONNECTER
-          </span>
-          <span onClick={() => navigate("/register")}>CRÉER UN COMPTE</span>
-        </div>
-        <p>Enter your login details</p>
+      {/* Overlay pour masquer le contenu principal lorsque le sidebar est ouvert */}
+      {isSidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
 
-        <div className="login-box">
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          <form onSubmit={handleLogin}>
-            <input
-              type="email"
-              className="input-field"
-              placeholder="Renseignez votre adresse email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              className="input-field"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button className="login-btn" type="submit">
-              Se connecter
-            </button>
-            <p className="forgot-password">Mot De Passe Oublié?</p>
-          </form>
-        </div>
+  <div className="register-box">
+    <div className="register-form">
+      <h2>Connectez-vous à votre espace </h2>
+      {(emailError || passwordError || error) && (
+  <div className="error-message">
+    {emailError || passwordError || error}
+  </div>
+)}
+    
+
+     
+
+      <form className="frm" onSubmit={handleLogin}>
+        <input type="email" className="input-field" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+
+        <input type="password" className="input-field" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required />
+     
+
+        <button className="register-btn" type="submit">Se connecter</button>
+
+        
+        <div className="login-link"> Vous n'avez pas encore de compte ?
+              <a href="/register"> Inscrivez-vous</a> </div>
+      </form>
+    </div>
+
+    <div className="register-image-section">
+       <video
+    className="register-video-bg"
+    autoPlay
+    loop
+    muted
+    playsInline
+  >
+    <source src="/images/video9.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+      <div className="testimonial">
+        “Untitled Labs were a breeze to work alongside, we can’t recommend them enough. We launched 6 months earlier than expected and are growing 30% MoM.”
+        <div className="testimonial-author">Amélie Laurent – Founder, Sisyphus</div>
       </div>
+    </div>
+  </div>
+</div>
+
       <Footer />
     </>
   );
 };
+
+
+
+
+
 
 export default Login;

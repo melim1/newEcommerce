@@ -1,110 +1,152 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Poppins:wght@300;400;600&display=swap');
 
-
-  /* --- Conteneur principal --- */
-  .login-container {
-    width: 100vw; /* Largeur dynamique par rapport à l'écran */
-    max-width:  1600px; /* Peut être augmenté si besoin */
-    min-height: 100vh; /* Ajuste la hauteur pour bien remplir l'écran */
-    background-color: #fdf7f7;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-   
-  }
-  
-  /* --- Onglets connexion & inscription --- */
-  .tabs {
-    display: flex;
-    justify-content: space-between;
-    padding: 0 20px;
-    font-size: 14px;
-    font-weight: bold;
-    background-color: #fdf7f7;
-    margin: 10px;
-    margin-right: 20px;
-    margin-bottom: 30px;
-  }
-  
-  .tabs span {
-    font-family: 'Poppins', sans-serif;
-    cursor: pointer;
-    padding-bottom: 5px;
-    color: #3D2920;
-    background-color: #fdf7f7;
-    margin-bottom: 0px;
-    margin-left: 80px;
-    margin-right: 80px;
-  }
-  
-  .tabs .active {
-    border-bottom: 2px solid #7a1a1a;
-  }
-  
-  /* --- Boîte de connexion --- */
-  .login-box {
-    width: 100%; /* Il doit prendre toute la largeur */
-    max-width: 1000px; /* Augmente si besoin */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    margin: 0 auto;
-    background-color: #fdf7f7;
-  }
-  
-  /* --- Titre --- */
-  p{
-    font-family: 'Montserrat', sans-serif;
-    font-size: 15px;
-    font-weight: normal;
-    margin-top: 45px;
-    margin-bottom: 25px;
-    background-color: #fdf7f7;
-  }
-  
-  /* --- Champs de saisie --- */
-  .input-field {
-    width: 600px; /* Prend toute la largeur dispo */
-    max-width: none; /* Supprime la limitation */
-    padding: 12px 15px; /* Ajuste le padding */
-    border: 1px solid #3D2920;
-    background: #fdf7f7;
-    font-style: italic;
-    color: #7a1a1a;
-    margin-bottom: 10px;
-   
-    box-sizing: border-box;
-    display: block; /* Évite les bugs flex */
-    
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 600px;
+  background-color: #f9f9f9;
+  font-family: 'Poppins', sans-serif;
+  margin-top:30px ;
 }
-  
-  /* --- Bouton de connexion (désactivé) --- */
-  .login-btn {
-    width: 100%;
-    padding: 10px;
-    background-color: #3D2920;
-    border: none;
-    color: white;
-    font-weight: bold;
-    cursor: not-allowed;
-    margin-top: 10px;
-    font-family: 'Poppins', sans-serif;
-  }
-  
-  /* --- Mot de passe oublié --- */
-  .forgot-password {
-    margin-top: 10px;
-    font-style: italic;
-    font-size: 12px;
-    color: #3D2920;
-    cursor: pointer;
-    text-align: center;
-    background-color: #fdf7f7;
-  }
-form{
-    background-color: #fdf7f7;
+
+.register-box {
+  display: flex;
+  width: 100%;
+  max-width: 1250px;
+  height: 93vh;
+  background-color: transparent;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.register-form {
+  flex: 1;
+  padding: 60px 50px;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.register-form h2 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+
+.npt{
+  background-color: #f9f9f9;
+}
+.input-field {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  outline: none;
+  box-shadow: none;
+  appearance: none;
+  display: block;
+  border-radius: 4px;
+  transition: border 0.2s ease;
+}
+
+
+.register-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #3D2920;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.register-btn:hover {
+  background-color: #333;
+}
+
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  background-color: transparent;
+}
+
+.login-link a {
+  color: #000;
+  text-decoration: underline;
+  margin-left: 5px;
+  background-color: transparent;
+}
+
+/* --- Right side --- */
+.register-image-section {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 40px;
+  color: white;
+  overflow: hidden; /* Empêche la vidéo de dépasser */
+}
+
+.register-video-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0; /* En arrière-plan */
+}
+
+/* Pour mettre ton contenu par-dessus la vidéo */
+.register-image-section .content {
+  position: relative;
+  z-index: 1;
+}
+
+
+.testimonial {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.testimonial-author {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #ddd;
+}
+.input-field:focus {
+  background-color: #fafafa; /* même fond qu’au repos */
+  border: 1px solid #aaa; /* ou ce que tu veux comme bordure */
+  outline: none; /* retire le contour bleu par défaut */
+  box-shadow: none; /* désactive le glow bleu sur Chrome */
+}
+.error-message {
+  color: red;
+  margin-bottom: 15px;
+  font-weight: 500;
+  font-size: 14px;
+  background-color: #ffe0e0;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
 }

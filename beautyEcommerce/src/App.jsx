@@ -15,6 +15,7 @@ import Paiement from './components/Paiement/Paiement';
 import CommandeDetails from './components/Commande/CommandeDetails';
 import GestionCommande from './components/AdminFunction/GestionCommande';
 import AddProduct from './components/AddProduct';
+import ListProduct from './components/product/ListeProduct';
 
 
 const App = () => {
@@ -38,6 +39,7 @@ const App = () => {
       <Route path="/confirmation/:commande_id" element={<Confirmation />} />
       <Route path="/paiement/:commandeId/:montant" element={<Paiement />} />
       <Route path="/commande/:id" element={<CommandeDetails />} />
+      <Route path="/categorie" element={<ListProduct />} />
       </Routes>
     </BrowserRouter>
   )

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import api from "../../api";
-
+import "../../styles/Profil.css";
 const ProfilEdit = ({ userInfo, onUpdate }) => {
   const [formData, setFormData] = useState({
     nom: userInfo.nom || '',

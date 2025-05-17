@@ -1,34 +1,156 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view,permission_classes
-from .models import Product, Visiteur, Cart,CartItem, Commande, CommentaireProduit, Notification,Utilisateur,Client,Paiement, Wishlist
-from .serializers import ProductSerializer, DetailedProductSerializer,VisiteurSerializer, CommandeSerializer,CommentaireProduitSerializer,NotificationSerializer,CartItemSerializer,ClientSerializer,CartSerializer,PaiementSerializer
+from .models import Product, Visiteur, Cart,CartItem, Commande, CommentaireProduit, Notification,Utilisateur,Client,Paiement,Wishlist
+from .serializers import ProductSerializer, DetailedProductSerializer,VisiteurSerializer, CommandeSerializer,CommentaireProduitSerializer,NotificationSerializer,CartItemSerializer,ClientSerializer,CartSerializer,PaiementSerializer,WishlistSerializer
 from rest_framework.response import Response
 from rest_framework import generics
 import random
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomTokenObtainPairSerializer,CreateCommandeSerializer,WishlistSerializer
+from .serializers import CustomTokenObtainPairSerializer,CreateCommandeSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework import status, permissions
 from django.contrib.auth.hashers import make_password
-from .serializers import UtilisateurSerializer, UpdateUserSerializer, UserSerializer
+from .serializers import UtilisateurSerializer, UpdateUserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .permissions import IsAdmin
 from .permissions import IsClient
 from rest_framework.parsers import MultiPartParser, FormParser
 import datetime
-from uuid import uuid4
-from rest_framework.exceptions import NotFound
+from .serializers import ProductSerializer, DetailedProductSerializer
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import Notification, Utilisateur
+# views.py
 
-import random
-import string
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import ClientSerializer, AdministrateurSerializer
+from .models import Client, Administrateur
+from rest_framework.permissions import AllowAny
 
-def generate_cart_code(length=11):
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Client, Administrateur
+from .serializers import ClientSerializer, AdministrateurSerializer
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAdmin
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def clients_count(request):
+    count = Client.objects.count()
+    return JsonResponse({'count': count}, content_type='application/json')
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def commandes_count(request):
+    count = Commande.objects.count()
+    return JsonResponse({'count': count}, content_type='application/json')
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def produits_count(request):
+    total = Product.objects.count()
+    disponibles = Product.objects.filter(estDisponible=True).count()
+    return JsonResponse({
+        'count': total,
+        'disponibles': disponibles,
+        'non_disponibles': total - disponibles
+    }, content_type='application/json')
+
+# --------------------------- CLIENT ---------------------------
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def clients_admins_list(request):
+    clients = Client.objects.all()
+    admins = Administrateur.objects.all()
+    
+    serialized_clients = ClientSerializer(clients, many=True).data
+    serialized_admins = AdministrateurSerializer(admins, many=True).data
+
+    return Response({
+        'clients': serialized_clients,
+        'admins': serialized_admins,
+    })
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def add_client(request):
+    serializer = ClientSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT', 'PATCH'])
+@permission_classes([AllowAny])
+def edit_client(request, id):
+    client = get_object_or_404(Client, id=id)
+    serializer = ClientSerializer(client, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_client(request, id):
+    try:
+        # Trouver le client via l'ID utilisateur
+        client = get_object_or_404(Client, utilisateur__id=id)
+        utilisateur = client.utilisateur
+        
+        client.delete()
+        utilisateur.delete()
+        return Response({"message": "Client supprimé avec succès."}, status=status.HTTP_204_NO_CONTENT)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def add_admin(request):
+    serializer = AdministrateurSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT', 'PATCH'])
+@permission_classes([AllowAny])
+def edit_admin(request, id):
+    admin = get_object_or_404(Administrateur, id=id)
+    serializer = AdministrateurSerializer(admin, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+@permission_classes([AllowAny])
+def delete_admin(request, id):
+    try:
+        admin = get_object_or_404(Administrateur, id=id)
+        # Supprimez d'abord l'utilisateur associé
+        utilisateur = admin.utilisateur
+        admin.delete()
+        utilisateur.delete()
+        return Response({"message": "Administrateur supprimé avec succès."}, status=status.HTTP_204_NO_CONTENT)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # Create your views here.
+
 class ProductListView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -75,131 +197,64 @@ def create_client_if_not_exists(request):
 @api_view(["POST"])
 def add_item(request):
     try:
+        cart_code = request.data.get("cart_code")
         product_id = request.data.get("product_id")
-        quantity = int(request.data.get("quantity", 1))
-        
-        # Pour utilisateur authentifié
-        if request.user.is_authenticated:
-            client = Client.objects.get(utilisateur=request.user)
-            cart, created = Cart.objects.get_or_create(
-                user=client, 
-                paid=False,
-                defaults={'cart_code': generate_cart_code()}  # Générer un cart_code valide
-            )
-        # Pour visiteur
-        else:
-            session_id = request.data.get("session_id")
-            if not session_id:
-                return Response({"error": "session_id is required for anonymous users"}, status=400)
-            
-            visiteur, created = Visiteur.objects.get_or_create(session_id=session_id)
-            cart, created = Cart.objects.get_or_create(
-                visiteur=visiteur, 
-                paid=False,
-                defaults={'cart_code': generate_cart_code()}  # Générer un cart_code valide
-            )
+        user = request.user
 
-        # Vérifier et obtenir le produit
+        # Si l'utilisateur est authentifié
+        if user.is_authenticated:
+            try:
+                client = Client.objects.get(utilisateur=user)
+            except Client.DoesNotExist:
+                return Response({"error": "You must be a registered Client to add items to the cart."}, status=400)
+
+            # Éviter le problème de doublons de panier
+            carts = Cart.objects.filter(user=client, paid=False)
+            if carts.count() > 1:
+                cart = carts.latest('created_at')
+                carts.exclude(id=cart.id).delete()
+            else:
+                cart = carts.first()
+
+            if not cart:
+                cart = Cart.objects.create(user=client, paid=False, cart_code=str(int(datetime.datetime.now().timestamp())))
+
+        else:
+            # Utilisateur non connecté, panier visiteur
+            if not cart_code:
+                return Response({"error": "cart_code is required"}, status=400)
+            cart, created = Cart.objects.get_or_create(cart_code=cart_code, paid=False)
+
+        # Vérifier le produit
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
             return Response({"error": "Product not found"}, status=404)
 
-        # Ajouter ou mettre à jour l'article
-        cart_item, created = CartItem.objects.get_or_create(
-            cart=cart, 
-            product=product,
-            defaults={'quantity': quantity}
-        )
-        
-        if not created:
-            cart_item.quantity += quantity
-            cart_item.save()
+        # Ajouter ou mettre à jour l'article dans le panier
+        cartitem, created = CartItem.objects.get_or_create(cart=cart, product=product)
+        cartitem.quantity = request.data.get("quantite", 1)
+        cartitem.save()
 
-        serializer = CartItemSerializer(cart_item)
-        return Response(serializer.data, status=201)
+        serializer = CartItemSerializer(cartitem)
+        return Response({"data": serializer.data, "message": "Cart item created successfully"}, status=201)
 
     except Exception as e:
         return Response({"error": str(e)}, status=400)
+
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_cart(request):
     try:
-        if request.user.is_authenticated:
-            client = Client.objects.get(utilisateur=request.user)
-            cart, _ = Cart.objects.get_or_create(user=client, paid=False)
-        else:
-            session_id = request.GET.get('session_id')
-            if not session_id:
-                return Response({"error": "session_id is required for anonymous users"}, status=400)
-            visiteur = Visiteur.objects.get(session_id=session_id)
-            cart, _ = Cart.objects.get_or_create(visiteur=visiteur, paid=False)
-
+        client = Client.objects.get(utilisateur=request.user)
+        cart = Cart.objects.filter(user=client, paid=False).first()
+        if not cart:
+            return Response({"items": [], "sum_total": 0, "num_of_items": 0})
         serializer = CartSerializer(cart)
-        return Response(serializer.data, status=200)
-
+        return Response(serializer.data)
     except Client.DoesNotExist:
-        return Response({"error": "Client not found"}, status=404)
-    except Visiteur.DoesNotExist:
-        return Response({"error": "Invalid session_id"}, status=400)
-    except Exception as e:
-        return Response({"error": str(e)}, status=400)
+        return Response({"error": "Client does not exist."}, status=400)
 
-@api_view(['PATCH'])
-def update_quantity(request):
-    try:
-        item_id = request.data.get('item_id')
-        quantity = int(request.data.get('quantity'))
-        
-        if not item_id or quantity < 1:
-            return Response({"error": "Invalid parameters"}, status=400)
-        
-        # Trouver l'item
-        try:
-            if request.user.is_authenticated:
-                cart_item = CartItem.objects.get(id=item_id, cart__user__utilisateur=request.user)
-            else:
-                session_id = request.data.get('session_id')
-                if not session_id:
-                    return Response({"error": "session_id required for anonymous users"}, status=400)
-                cart_item = CartItem.objects.get(id=item_id, cart__visiteur__session_id=session_id)
-        except CartItem.DoesNotExist:
-            return Response({"error": "Item not found in cart"}, status=404)
-        
-        # Mettre à jour la quantité
-        cart_item.quantity = quantity
-        cart_item.save()
-        
-        # Retourner les données mises à jour
-        serializer = CartItemSerializer(cart_item)
-        return Response({"data": serializer.data})
-    
-    except Exception as e:
-        return Response({"error": str(e)}, status=400)
-
-@api_view(['POST'])
-def delete_cartitem(request):
-    try:
-        item_id = request.data.get('item_id')
-        
-        if not item_id:
-            return Response({"error": "item_id is required"}, status=400)
-        
-        # Supprimer l'item
-        if request.user.is_authenticated:
-            cart_item = CartItem.objects.get(id=item_id, cart__user__utilisateur=request.user)
-        else:
-            session_id = request.data.get('session_id')
-            if not session_id:
-                return Response({"error": "session_id required for anonymous users"}, status=400)
-            cart_item = CartItem.objects.get(id=item_id, cart__visiteur__session_id=session_id)
-        
-        cart_item.delete()
-        return Response({"message": "Item deleted successfully"})
-    
-    except CartItem.DoesNotExist:
-        return Response({"error": "Item not found"}, status=404)
-    except Exception as e:
-        return Response({"error": str(e)}, status=400)
 @api_view(['PATCH'])
 def update_quantity(request):
     try:
@@ -245,17 +300,54 @@ def passer_commande(request):
     serializer = CreateCommandeSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         commande = serializer.save()
-
-        # Créer une notification pour l'utilisateur
-        message = f"Votre commande #{commande.id} a été reçue avec succès."
-        notification = Notification(utilisateur=request.user, message=message)
-        notification.save()  # Enregistrer la notification dans la base de données
-
-
         return Response({'message': 'Commande créée avec succès.', 'commande_id': str(commande.id)})
     return Response(serializer.errors, status=400)
+@csrf_exempt
+def envoyer_notification(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            utilisateur_id = data.get('utilisateur_id')
+            message = data.get('message')
 
+            utilisateur = get_object_or_404(Utilisateur, id=utilisateur_id)
 
+            notification = Notification.objects.create(
+                utilisateur=utilisateur,
+                message=message,
+            )
+
+            return JsonResponse({
+                'status': 'success',
+                'notification_id': str(notification.id),
+                'message': 'Notification envoyée avec succès.'
+            }, status=201)
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+    return JsonResponse({'status': 'error', 'message': 'Méthode non autorisée'}, status=405)
+
+class CreateNotificationAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # Assure-toi que l'utilisateur est authentifié
+
+    def post(self, request):
+        user_id = request.data.get('user_id')  # On récupère l'user_id envoyé
+        message = request.data.get('message')  # On récupère le message de la notification
+
+        if not user_id or not message:
+            return Response({'error': 'user_id et message sont requis'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = Utilisateur.objects.get(id=user_id)
+
+        except Utilisateur.DoesNotExist:
+            return Response({'error': 'Utilisateur non trouvé'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Créer la notification
+        notification = Notification.objects.create(user=user, message=message)
+
+        return Response({'message': 'Notification envoyée avec succès', 'notification_id': notification.id}, status=status.HTTP_201_CREATED)
 # Vue pour gérer le paiement d'une commande
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -295,17 +387,6 @@ def effectuer_paiement(request):
         # Marquer la commande comme payée
         commande.status = 'PAID'
         commande.save()
-         
-          # Créer une notification pour l'utilisateur
-        notification_message = f"Votre commande #{commande.id} a été payée avec succès."
-        print(f"Notification: {notification_message}")
-
-        Notification.objects.create(
-            utilisateur=request.user,  # L'utilisateur connecté
-            message=f"Votre commande #{commande.id} a été payée avec succès.",
-            dateEnvoi=commande.dateCommande  # La date de la commande
-        )
-
 
         # Retourner une réponse de succès
         return Response({
@@ -341,6 +422,43 @@ class AdminCommandeUpdateView(APIView):
 
         except Commande.DoesNotExist:
             return Response({'error': 'Commande introuvable'}, status=404)
+class ClientCommandeListView(generics.ListAPIView):
+    serializer_class = CommandeSerializer
+    permission_classes = [IsAuthenticated, IsClient]
+
+    def get_queryset(self):
+        client = self.request.user.client  # L'utilisateur connecté est un client
+        return Commande.objects.filter(
+            lignes__produit__client=client
+        ).distinct()
+
+
+class changer_statut(APIView):
+
+    def get_queryset(self):
+        client = self.request.user.client
+        return Commande.objects.filter(lignes__produit__client=client).distinct()
+
+    def patch(self, request, id):
+        try:
+            commande = self.get_queryset().get(id=id)
+        except Commande.DoesNotExist:
+            return Response({'error': 'Commande non trouvée'}, status=status.HTTP_404_NOT_FOUND)
+
+        new_status = request.data.get('statut')
+        if not new_status:
+            return Response({'error': 'Le statut est requis'}, status=status.HTTP_400_BAD_REQUEST)
+
+        valid_statuses = ['EXPÉDIÉ', 'VALIDÉE', 'ANNULÉE']
+        if new_status not in valid_statuses:
+            return Response({'error': 'Statut invalide'}, status=status.HTTP_400_BAD_REQUEST)
+
+        commande.statut = new_status
+        commande.save()
+
+        return Response({'message': f'Statut de la commande mis à jour à {new_status}'}, status=status.HTTP_200_OK)
+
+
 
 class AdminCommandeListView(generics.ListAPIView):
     serializer_class = CommandeSerializer
@@ -389,15 +507,12 @@ class AdminUpdateCommandeStatusView(APIView):
         commande.statut = new_status
         commande.save()
 
-        # Créer une notification pour le client
-        notification_message = f"Le statut de votre commande #{commande.id} a été mis à jour vers '{new_status}'."
-        Notification.objects.create(
-            utilisateur=commande.client.utilisateur,  # Utilisateur (client) de la commande
-            message=notification_message,
-            type='info'  # Type de notification (ajuster si nécessaire)
-        )
-
         return Response({'message': f'Statut de la commande mis à jour à {new_status}'}, status=status.HTTP_200_OK)
+
+
+
+
+
 
 class CommentairesProduitAPIView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -426,9 +541,14 @@ class CommentairesProduitAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class NotificationListView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(utilisateur=self.request.user).order_by('-dateEnvoi')
 
 
-    
 @api_view(['GET'])
 def produits_en_avant(request):
     produits = list(Product.objects.filter(estDisponible=True))  
@@ -619,7 +739,7 @@ class ProductDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
 class UserInfoView(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UtilisateurSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
@@ -627,105 +747,6 @@ class UserInfoView(generics.RetrieveAPIView):
 
 
 
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def merge_cart(request):
-    try:
-        user = request.user
-        client = Client.objects.get(utilisateur=user)
-        cart, created = Cart.objects.get_or_create(user=client, paid=False)
-
-        # Récupérer les items du panier visiteur
-        visitor_items = request.data.get("items", [])
-        for item in visitor_items:
-            product_id = item.get("product_id")
-            quantity = item.get("quantity", 1)
-
-            # Vérifier si le produit existe déjà dans le panier utilisateur
-            cart_item, created = CartItem.objects.get_or_create(
-                cart=cart,
-                product_id=product_id,
-                defaults={"quantity": quantity},
-            )
-            if not created:
-                cart_item.quantity += quantity
-                cart_item.save()
-
-        return Response({"message": "Panier fusionné avec succès."}, status=200)
-    except Exception as e:
-        return Response({"error": str(e)}, status=400)
-    
-
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def transfer_visitor_cart(request):
-    session_id = request.data.get("session_id")
-    items = request.data.get("items", [])
-
-    if not session_id or not items:
-        return Response({"error": "Session ID et items requis."}, status=400)
-
-    try:
-        visiteur = Visiteur.objects.get(session_id=session_id)
-        client = Client.objects.get(utilisateur=request.user)
-
-        # Récupérer ou créer le panier du client
-        cart, _ = Cart.objects.get_or_create(user=client, paid=False, defaults={"cart_code": generate_cart_code()})
-
-        for item in items:
-            product_id = item.get("product_id")
-            quantity = item.get("quantity", 1)
-
-            try:
-                product = Product.objects.get(id=product_id)
-            except Product.DoesNotExist:
-                continue  # On ignore si le produit n’existe pas
-
-            # Ajouter ou mettre à jour les articles
-            cart_item, created = CartItem.objects.get_or_create(
-                cart=cart,
-                product=product,
-                defaults={"quantity": quantity}
-            )
-
-            if not created:
-                cart_item.quantity += quantity
-                cart_item.save()
-
-        return Response({"message": "Panier visiteur transféré avec succès."})
-
-    except Visiteur.DoesNotExist:
-        return Response({"error": "Visiteur introuvable."}, status=404)
-    except Client.DoesNotExist:
-        return Response({"error": "Client introuvable."}, status=404)
-
-
-
-class NotificationListView(generics.ListAPIView):
-    serializer_class = NotificationSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return Notification.objects.filter(utilisateur=self.request.user).order_by('-dateEnvoi')
-
-
-class NotificationMarkAsReadView(APIView):
-    """
-    Marque une notification comme lue
-    """
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request, pk):
-        try:
-            notification = Notification.objects.get(pk=pk, utilisateur=request.user)
-        except Notification.DoesNotExist:
-            raise NotFound("Notification introuvable")
-
-        notification.is_read = True
-        notification.save()
-        return Response({'status': 'Notification marquée comme lue'}, status=status.HTTP_200_OK)
 
 class WishlistView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -759,3 +780,17 @@ class WishlistView(APIView):
             return Response({'message': 'Produit supprimé de la wishlist.'}, status=status.HTTP_204_NO_CONTENT)
         except Wishlist.DoesNotExist:
             return Response({'error': 'Produit non trouvé dans la wishlist.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UserNotificationsView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(utilisateur=self.request.user).order_by('-dateEnvoi')
+
+
+
+
+
+
