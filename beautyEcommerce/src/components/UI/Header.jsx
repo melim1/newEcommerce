@@ -30,7 +30,7 @@ const Header = ({ toggleSidebar }) => {
         <FaBars size={24} />
       </div>
 
-      <h1 className="logo">Touché Beauty</h1>
+      <img src="/images/logo2.png" alt="Logo" className="logo2" />
 
       <div className="header-icons">
         <Link to="/cart" className="cart-icon">

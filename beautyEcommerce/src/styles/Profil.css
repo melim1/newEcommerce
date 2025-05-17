@@ -210,47 +210,9 @@
   background-color: #5a3d31;
 }
 
-/* Styles généraux pour les notifications */
-.notifications {
-  background-color: transparent;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
 
-.notification-list {
-  list-style: none;
-  padding: 0;
-  background-color: transparent;
-}
 
-.notification-item {
-  background-color: transparent;
-  padding: 15px;
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
 
-.notification-item.read {
-  background-color: transparent;
-  color: #aaa;
-  
-}
-
-.notification-item .message {
-  font-size: 16px;
-  color: #3b241c;
-  margin-bottom: 5px;
-  background-color: transparent;
-}
-
-.notification-item .date {
-  font-size: 12px;
-  color: #888;
-  background-color: transparent;
-}
 
 
 /* CSS pour le compteur de notifications non lues */
@@ -264,7 +226,7 @@
 }
 .wishlist {
   padding: 20px;
-  background-color: #F8F3EE;
+  background-color: transparent;
 }
 
 .wishlist-items {
@@ -272,20 +234,26 @@
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 25px;
   margin-top: 20px;
-  background-color: #F8F3EE;
+  background-color: transparent;
+
 }
 
 .wishlist-card {
-  background-color: #F8F3EE;
+  background-color:  #fbf6f2; /* oué si tu veux rester dans la palette */
   border-radius: 12px;
   padding: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
   transition: transform 0.2s ease;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 .wishlist-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .wishlist-product-image {
@@ -293,30 +261,138 @@
   height: 200px;
   object-fit: cover;
   border-radius: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
+
 wishlist-product-info div{
-  background-color: #F8F3EE;
+  background-color:  #fbf6f2;
+}
+.wishlist-product-info{
+  background-color:  #fbf6f2;
+}
+.wishlist-product-inf{
+background-color:  #fbf6f2;
 }
 
 .wishlist-product-info h3 {
   font-size: 18px;
   color: #3b241c;
   margin: 10px 0 5px;
-  background-color: #F8F3EE;
+  background-color:  #fbf6f2;
 }
 
 .wishlist-product-inf p {
   font-size: 16px;
   color: #3b241c;
   margin-bottom: 10px;
-  background-color: #F8F3EE;
+  background-color:  #fbf6f2
 }
 .wishlist-buttons{
-  background-color: #F8F3EE;
+  background-color: transparent;
+}
+.voir-details-button {
+  background-color: #3D2920;
+  color: #fbf6f2; /* Couleur crème claire pour le texte */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 
+
+.wishlist-buttons:disabled {
+  background-color: #a5948c;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+
+
+
+
+.notif {
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  transition: background-color 0.3s;
+  
+}
+
+.notif strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+    background-color: transparent;
+}
+
+.notif small {
+  color: #666;
+  font-size: 0.8rem;
+    background-color: transparent;
+}
+
+/* Styles par type de notification */
+.notif-info {
+    background-color: #ddd2ca;
+  border-left: 4px solid #3D2920;
+  color: #3D2920;
+}
+
+.notif-success {
+    background-color: #ddd2ca;
+  border-left: 4px solid #3D2920;
+  color: #3D2920;
+}
+
+.notif-warning {
+  background-color: #fff9e6;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+}
+
+.notif-error {
+  background-color: #fdecea;
+  border-left: 4px solid #dc3545;
+  color: #721c24;
+}
+
+/* Container général */
+.notifications-container {
+  max-width: 700px;
+  margin: auto;
+  padding: 20px;
+  background-color: transparent;
+}
+ul{
+  background-color: #ddd2ca;
+  border-radius: 10px;
+  padding: 12px 16px;
+
+}
+.notifications{
+   background-color: transparent;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .notif {
+    font-size: 0.9rem;
+    padding: 10px 14px;
+  }
+
+  .notif strong {
+    font-size: 1rem;
+  }
+}
 .detail-button {
   background-color: #3D2920;
   color: white;
@@ -331,4 +407,3 @@ wishlist-product-info div{
 .detail-button:hover {
   background-color: #5a3d31;
 }
-

@@ -4,11 +4,16 @@ import api from '../../api';
 import Header from '../UI/Header';
 import Footer from '../UI/Footer';
 import "../../styles/CommandeDetails.css";
+import Menu from "../UI/Menu";
 
 const CommandeDetails = () => {
   const { id } = useParams();
   const [commande, setCommande] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
 
   useEffect(() => {
     api.get(`/commande/${id}/`, {
@@ -31,7 +36,13 @@ const CommandeDetails = () => {
 
   return (
     <>
-      <Header />
+      <Header toggleSidebar={toggleSidebar} />
+     
+      <Menu isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+
+      {/* Overlay pour masquer le contenu principal lorsque le sidebar est ouvert */}
+      {isSidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
+
       <div className="commande-details-container">
         <h1>Détails de la commande #{commande.id}</h1>
         <p><strong>Date :</strong> {new Date(commande.dateCommande).toLocaleDateString()}</p>

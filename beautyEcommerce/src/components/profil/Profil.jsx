@@ -34,6 +34,7 @@ const Profil = () => {
   const [boutiqueOpen, setBoutiqueOpen] = useState(false); // état pour ouvrir/fermer sous-menu "Créer ma boutique"
 
 
+
   // État pour la modification de produit
   const [productForm, setProductForm] = useState({
     id: null,
@@ -268,8 +269,12 @@ const Profil = () => {
 
   return (
     <>
+       <Header toggleSidebar={toggleSidebar} />
+     
       <Menu isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-      <Header toggleSidebar={toggleSidebar} />
+
+      {/* Overlay pour masquer le contenu principal lorsque le sidebar est ouvert */}
+      {isSidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
 
       <div className="profile-container">
         <aside className="profile-sidebar">
@@ -330,7 +335,7 @@ const Profil = () => {
         <main className="profile-content">
           {activeTab === "orders" && (
             <>
-              <h1 className="titre">Mes commandes</h1>
+             
               <div className="orders">
                 {commandes.length === 0 ? (
                   <p>Vous n'avez pas encore passé de commande.</p>
@@ -370,7 +375,7 @@ const Profil = () => {
 
           {activeTab === "info" && (
             <>
-              <h1 className="titre">Informations personnelles</h1>
+             
               {!isEditing ? (
                 <div className="form-grid">
                   <div className="form-group">
@@ -521,7 +526,7 @@ const Profil = () => {
 
          {activeTab === "wishlist" && (
   <>
-    <h1 className="titre">Mes favoris</h1>
+
     <div className="wishlist">
       {wishlist.length === 0 ? (
         <p>Votre wishlist est vide.</p>
@@ -559,8 +564,9 @@ const Profil = () => {
 
           {activeTab === "notifications" && (
                 <>
-               <div>
-            <h2>Mes notifications</h2>
+               <div className='notifications'>
+          <div className="notifications-container"> 
+           
             {loadingNotif ? (
               <p>Chargement...</p>
             ) : notifications.length > 0 ? (
@@ -576,6 +582,7 @@ const Profil = () => {
             ) : (
               <p>Aucune notification pour le moment.</p>
             )}
+          </div>
           </div>
             </>
 
