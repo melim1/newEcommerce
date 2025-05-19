@@ -109,13 +109,10 @@ def edit_client(request, id):
 @permission_classes([AllowAny])
 def delete_client(request, id):
     try:
-        # Trouver le client via l'ID client ou l'ID utilisateur
-        try:
-            client = get_object_or_404(Client, id=id)
-        except:
-            client = get_object_or_404(Client, utilisateur__id=id)
-            
+        # Trouver le client via l'ID utilisateur
+        client = get_object_or_404(Client, utilisateur__id=id)
         utilisateur = client.utilisateur
+        
         client.delete()
         utilisateur.delete()
         return Response({"message": "Client supprimé avec succès."}, status=status.HTTP_204_NO_CONTENT)
@@ -145,12 +142,8 @@ def edit_admin(request, id):
 @permission_classes([AllowAny])
 def delete_admin(request, id):
     try:
-        # Trouver l'admin via l'ID admin ou l'ID utilisateur
-        try:
-            admin = get_object_or_404(Administrateur, id=id)
-        except:
-            admin = get_object_or_404(Administrateur, utilisateur__id=id)
-            
+        admin = get_object_or_404(Administrateur, id=id)
+        # Supprimez d'abord l'utilisateur associé
         utilisateur = admin.utilisateur
         admin.delete()
         utilisateur.delete()

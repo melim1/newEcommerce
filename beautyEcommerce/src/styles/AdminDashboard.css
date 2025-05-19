@@ -1,155 +1,96 @@
-/* dashboardStyles.css */
-
-/* Applique un fond blanc général à la page */
-.white-background {
-  background-color: #ffffff;
-  color: #1a1a1a;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Titres */
-h4 {
-  font-weight: 600;
-  color: #2d2d2d;
-}
-
-/* Typography des cartes */
-.MuiTypography-h6 {
-  font-weight: 500;
-  color: #333;
-}
-
-/* Style des cartes */
-.MuiCard-root {
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transition: transform 0.2s ease;
-}
-
-.MuiCard-root:hover {
-  transform: translateY(-4px);
-}
-
-/* Style du contenu */
-.MuiCardContent-root {
-  padding: 24px;
-}
-
-/* Container de chaque graphique */
-.chart-container {
-  height: 300px;
-  position: relative;
-  padding: 16px;
-  background-color: #fafafa;
-  border-radius: 8px;
-}
-
-/* Texte des totaux */
-.card-total {
-  font-weight: 600;
-  margin-top: 16px;
-  font-size: 16px;
-  color: #444;
-}
-
-/* Responsive */
-@media screen and (max-width: 600px) {
-  .chart-container {
-    height: 250px;
+.admin-dashboard {
+    font-family: Arial, sans-serif;
+    
   }
-}
-/* AdminDashboard.css */
-
-/* === NAVBAR STYLING ONLY === */
-
-/* En-tête contenant le navbar */
+  
+  .admin-header {
+   
+    padding: 10px;
+    color: black;
+  }
+  
+  .admin-header h1 {
+    margin: 0;
+    padding-bottom: 10px;
+  }
+  
+  .top-nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .top-nav li {
+    cursor: pointer;
+    color: black;
+  }
+  
+  .top-nav li:hover {
+    text-decoration: underline;
+  }
+  
+  .main-content {
+    padding: 20px;
+  }
+  /* Admin Header */
 .admin-header {
-  background-color: #ffffff; /* Fond blanc pur */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Ombre douce */
-  padding: 20px 30px;
+  background-color: #2c3e50;
+  color: #020202;
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  border-bottom: 1px solid #e5e5e5;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Titre du dashboard */
 .admin-title {
-   background-color: #ffffff;
   font-size: 24px;
   font-weight: bold;
-  color: #2c3e50;
+  letter-spacing: 1px;
 }
 
-/* === NAVBAR AVEC STYLE AMÉLIORÉ === */
-
-/* Barre de navigation */
+/* Top Navigation */
 .top-nav {
-  background-color: #ffffff;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
-  padding: 12px 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  perspective: 1000px; /* pour effet 3D */
 }
 
-/* Boutons de navigation avec icônes */
 .nav-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(145deg, #ffffff, #f0f0f0);
-  border: 1px solid #e0e0e0;
+  background-color: #34495e;
+  color: #000000;
+  border: 1px solid #34495e;
   padding: 12px 20px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #444;
+  margin: 0 15px;
+  border-radius: 5px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  transform-style: preserve-3d;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
 }
 
-/* Image ou icône dans les boutons */
-.nav-btn img {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-}
-
-/* Effet 3D au survol */
-.nav-btn:hover {
-  transform: rotateX(5deg) rotateY(5deg) scale(1.02);
-  background: linear-gradient(145deg, #f9f9f9, #ffffff);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-  color: #007bff;
-}
-
-/* Bouton actif avec couleur animée */
+.nav-btn:hover,
 .nav-btn.active {
-  background: linear-gradient(135deg, #007bff, #0056d2);
-  color: white;
-  border-color: #007bff;
-  box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
-  transform: scale(1.05);
+  background-color: #1abc9c;
+  border-color: #1abc9c;
 }
 
-/* Bouton de déconnexion */
 .nav-btn.logout {
-  margin-left: auto;
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  color: white;
-  font-weight: 600;
-  border: none;
+  background-color: #e74c3c;
+  border-color: #e74c3c;
 }
 
 .nav-btn.logout:hover {
-  background: linear-gradient(135deg, #c0392b, #a93226);
-  transform: rotateX(5deg) rotateY(-5deg) scale(1.03);
-  box-shadow: 0 10px 20px rgba(231, 76, 60, 0.4);
+  background-color: #c0392b;
+  border-color: #c0392b;
+}
+
+/* Navbar Button States */
+.nav-btn:focus {
+  outline: none;
+}
+
+.nav-btn.active {
+  background-color: #1abc9c !important;
+  border-color: #1abc9c !important;
+  color: #fff !important;
 }

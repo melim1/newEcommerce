@@ -18,7 +18,6 @@ import {
   Box
 } from '@mui/material';
 import { styled } from '@mui/system';
-import './dashboardStyles.css'; // Importez la feuille de style
 
 // Plugin pour fond blanc des canvas
 const whiteBackgroundPlugin = {
@@ -40,11 +39,20 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 const DashboardContainer = styled(Box)({
   minHeight: '100vh',
   padding: '32px',
+  color: '#000000',
 });
 
 // Carte personnalisée
 const WhiteCard = styled(Card)({
+  color: '#000000',
   boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
+  backgroundColor: '#ffffff !important',
+  '& .MuiCardContent-root': {
+    backgroundColor: '#ffffff !important'
+  },
+  '& *': {
+    backgroundColor: '#ffffff !important'
+  }
 });
 
 // Conteneur de graphique
@@ -52,6 +60,7 @@ const ChartContainer = styled('div')({
   padding: '16px',
   height: '300px',
   position: 'relative',
+  backgroundColor: '#ffffff !important'
 });
 
 const DashboardOverview = () => {
@@ -157,7 +166,12 @@ const DashboardOverview = () => {
 
   return (
     <DashboardContainer className="white-background">
-      <Typography variant="h4" sx={{ mb: 4 }}>
+      <Typography variant="h4" sx={{
+        mb: 4,
+        fontWeight: 700,
+        letterSpacing: '0.5px',
+        color: '#000000'
+      }}>
         Tableau de Bord
       </Typography>
 
@@ -165,13 +179,13 @@ const DashboardOverview = () => {
         <Grid item xs={12} md={4}>
           <WhiteCard>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 2 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Clients
               </Typography>
               <ChartContainer>
                 <Pie data={clientsData} options={chartOptions} />
               </ChartContainer>
-              <Typography variant="body1" sx={{ mt: 1 }}>
+              <Typography variant="body1" sx={{ mt: 1, textAlign: 'center' }}>
                 Total: <span style={{ color: '#58A6FF' }}>{stats.clients}</span>
               </Typography>
             </CardContent>
@@ -181,7 +195,7 @@ const DashboardOverview = () => {
         <Grid item xs={12} md={4}>
           <WhiteCard>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 2 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Commandes
               </Typography>
               <ChartContainer>
@@ -193,7 +207,7 @@ const DashboardOverview = () => {
                   }
                 }} />
               </ChartContainer>
-              <Typography variant="body1" sx={{ mt: 1 }}>
+              <Typography variant="body1" sx={{ mt: 1, textAlign: 'center' }}>
                 Total: <span style={{ color: '#2EA043' }}>{stats.commandes}</span>
               </Typography>
             </CardContent>
@@ -203,13 +217,13 @@ const DashboardOverview = () => {
         <Grid item xs={12} md={4}>
           <WhiteCard>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 2 }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Produits
               </Typography>
               <ChartContainer>
                 <Doughnut data={produitsData} options={chartOptions} />
               </ChartContainer>
-              <Typography variant="body1" sx={{ mt: 1 }}>
+              <Typography variant="body1" sx={{ mt: 1, textAlign: 'center' }}>
                 Total: <span style={{ color: '#2EA043' }}>{stats.produits}</span>
               </Typography>
             </CardContent>

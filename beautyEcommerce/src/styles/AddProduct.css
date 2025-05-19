@@ -3,6 +3,11 @@
   margin: 0 auto;
   padding: 2rem;
 }
+.details-button{
+ background-color: #3D2920; /* rouge Bootstrap par exemple */
+  color: white;
+
+}
 
 .add-product-header {
   margin-bottom: 2rem;
