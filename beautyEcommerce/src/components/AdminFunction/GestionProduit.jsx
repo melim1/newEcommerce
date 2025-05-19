@@ -12,12 +12,14 @@ const GestionProduit = () => {
     category: '',
     stockDisponible: '',
     ingredient: '',
-    image: null,        // Fichier sélectionné
-    image_url: '',      // URL de l'image existante
+    image: null,
+    image_url: '',
   });
   const [editing, setEditing] = useState(false);
 
-  // GET produits
+  // Options pour la liste déroulante des catégories
+  const categories = ["Teint", "Yeux", "Lèvres"];
+
   useEffect(() => {
     fetchProduits();
   }, []);
@@ -72,9 +74,9 @@ const GestionProduit = () => {
         });
         alert('Produit modifié avec succès');
       } else {
-       await api.post('/api/produits/ajouter/', formData, {
-  headers: { 'Content-Type': 'multipart/form-data' }
-});
+        await api.post('/api/produits/ajouter/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         alert('Produit ajouté avec succès');
       }
 
@@ -102,7 +104,7 @@ const GestionProduit = () => {
         image: productForm.image instanceof File ? "Fichier présent" : "Aucun fichier"
       });
       console.error('Erreur lors de la soumission du produit', error);
-      alert("Catégorie introuvable" );
+      alert("Catégorie introuvable");
     }
   };
 
@@ -126,7 +128,7 @@ const GestionProduit = () => {
       stockDisponible: produit.stockDisponible,
       ingredient: produit.ingredient,
       image: null,
-      image_url: produit.image, // Chemin de l’image actuelle
+      image_url: produit.image,
     });
     setEditing(true);
   };
@@ -148,7 +150,56 @@ const GestionProduit = () => {
         <input type="number" name="price" value={productForm.price} onChange={handleChange} required />
 
         <label>Catégorie:</label>
-        <input type="text" name="category" value={productForm.category} onChange={handleChange} required />
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          marginBottom: '20px'
+        }}>
+          <select 
+            name="category" 
+            value={productForm.category} 
+            onChange={handleChange}
+            required
+            style={{
+              width: '100%',
+              padding: '12px 15px',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              backgroundColor: 'white',
+              fontSize: '16px',
+              color: '#333',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+            }}
+          >
+            <option value="">Sélectionnez une catégorie</option>
+            {categories.map((cat, index) => (
+              <option 
+                key={index} 
+                value={cat}
+                style={{
+                  padding: '10px 15px',
+                  backgroundColor: 'white',
+                  color: '#333'
+                }}
+              >
+                {cat}
+              </option>
+            ))}
+          </select>
+          <span style={{
+            position: 'absolute',
+            top: '50%',
+            right: '15px',
+            transform: 'translateY(-50%)',
+            color: '#666',
+            pointerEvents: 'none'
+          }}>▼</span>
+        </div>
 
         <label>Stock Disponible:</label>
         <input type="number" name="stockDisponible" value={productForm.stockDisponible} onChange={handleChange} required />
@@ -187,13 +238,13 @@ const GestionProduit = () => {
               <td>{produit.price} €</td>
               <td>{produit.category}</td>
               <td>
-              {produit.image && (
-    <img
-      src={produit.image}
-      alt="Produit"
-      width="80"
-    />
-  )}
+                {produit.image && (
+                  <img
+                    src={produit.image}
+                    alt="Produit"
+                    width="80"
+                  />
+                )}
               </td>
               <td>
                 <button onClick={() => handleEdit(produit)}>Modifier</button>
@@ -203,6 +254,23 @@ const GestionProduit = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Styles intégrés */}
+      <style>{`
+        select:focus {
+          outline: none;
+          border-color: #a18aff;
+          box-shadow: 0 0 0 2px rgba(161, 138, 255, 0.2);
+        }
+        
+        option:hover {
+          background-color: #f0ebff !important;
+        }
+        
+        select option[value=""] {
+          color: #999;
+        }
+      `}</style>
     </div>
   );
 };

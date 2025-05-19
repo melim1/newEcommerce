@@ -1,0 +1,40 @@
+/* dashboardStyles.css */
+.white-background {
+  background-color: white !important;
+}
+
+.white-background .MuiCard-root,
+.white-background .MuiCardContent-root,
+.white-background .MuiTypography-root,
+.white-background .MuiGrid-root,
+.white-background .MuiBox-root {
+  background-color: white !important;
+  color: #000000 !important;
+}
+
+.white-background .MuiCard-root {
+  box-shadow: 0px 2px 10px rgba(0,0,0,0.1) !important;
+}
+
+.white-background .MuiTypography-h4 {
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+}
+
+.white-background .MuiTypography-h6 {
+  font-weight: 600 !important;
+}
+
+.white-background .MuiTypography-body1 {
+  text-align: center !important;
+}
+/* dashboardStyles.css */
+/* Cible le conteneur parent du canvas */
+.css-w6vh7r {
+  background-color: white !important;
+}
+
+/* Cible directement le canvas */
+.css-w6vh7r > canvas {
+  background-color: white !important;
+}

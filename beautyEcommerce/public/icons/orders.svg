@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Billet de banque -->
+  <rect x="3" y="8" width="18" height="10" rx="2" ry="2">
+    <animateTransform attributeName="transform"
+                      type="translate"
+                      values="0,2; 0,-1; 0,2"
+                      dur="1.5s"
+                      repeatCount="indefinite" />
+  </rect>
+
+  <!-- Cercle au centre du billet -->
+  <circle cx="12" cy="13" r="2">
+    <animate attributeName="r"
+             values="2;2.5;2"
+             dur="1.5s"
+             repeatCount="indefinite" />
+  </circle>
+
+  <!-- Lignes décoratives à gauche -->
+  <line x1="5" y1="10" x2="5" y2="16">
+    <animate attributeName="y1"
+             values="10;9;10"
+             dur="1.5s"
+             repeatCount="indefinite" />
+    <animate attributeName="y2"
+             values="16;17;16"
+             dur="1.5s"
+             repeatCount="indefinite" />
+  </line>
+
+  <!-- Lignes décoratives à droite -->
+  <line x1="19" y1="10" x2="19" y2="16">
+    <animate attributeName="y1"
+             values="10;9;10"
+             dur="1.5s"
+             repeatCount="indefinite" />
+    <animate attributeName="y2"
+             values="16;17;16"
+             dur="1.5s"
+             repeatCount="indefinite" />
+  </line>
+</svg>

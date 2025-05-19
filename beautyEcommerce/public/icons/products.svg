@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <g>
+    <!-- Panier principal -->
+    <path id="basket" d="M6 6h15l-1.5 9h-13z">
+      <animateTransform attributeName="transform" type="translate" values="0,10; 0,-2; 0,0" dur="1.2s" repeatCount="indefinite"></animateTransform>
+    </path>
+
+    <!-- Poignée -->
+    <path d="M6 6L4 2H1">
+      <animateTransform attributeName="transform" type="rotate" values="0 6 6; 5 6 6; -5 6 6; 0 6 6" dur="1.2s" repeatCount="indefinite"></animateTransform>
+    </path>
+
+    <!-- Roue gauche -->
+    <circle cx="9" cy="20" r="1">
+      <animateTransform attributeName="transform" type="rotate" values="0 9 20;360 9 20" dur="1s" repeatCount="indefinite"></animateTransform>
+    </circle>
+
+    <!-- Roue droite -->
+    <circle cx="18" cy="20" r="1">
+      <animateTransform attributeName="transform" type="rotate" values="0 18 20;360 18 20" dur="1s" repeatCount="indefinite"></animateTransform>
+    </circle>
+  </g>
+</svg>

@@ -123,4 +123,62 @@
         padding: 8px;
     }
 }
+/* Appliquer un fond blanc globalement */
+.dashboard-container {
+  background-color: white;
+  padding: 20px;
+}
+
+.content-wrapper {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.title,
+.role-selector,
+.role-dropdown,
+.list-title {
+  background-color: white;
+}
+
+/* La liste des utilisateurs ne change pas de couleur (pas de background forcé) */
+.action-buttons{
+ background-color: white;
+}
+.user-name{
+background-color: white;
+}
+.user-email{
+background-color: white;
+}
+.user-phone{
+background-color: white;
+}
+.user-list{
+    background-color: white;
+}
+
+/* Chaque carte utilisateur garde le style original */
+.user-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  /* Pas de background-color ici non plus pour laisser la couleur d’origine */
+}
+
+/* Fond rouge pour le bouton Supprimer */
+.delete-button {
+  background-color: crimson;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: darkred;
+}
 

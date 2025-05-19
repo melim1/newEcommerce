@@ -43,29 +43,17 @@ class UtilisateurSerializer(serializers.ModelSerializer):
 
 class ClientSerializer(serializers.ModelSerializer):
     utilisateur = UtilisateurSerializer()
-
+    
     class Meta:
         model = Client
-        fields = ['utilisateur']
-
-    def create(self, validated_data):
-        utilisateur_data = validated_data.pop('utilisateur')
-        utilisateur = UtilisateurSerializer().create(utilisateur_data)
-        client = Client.objects.create(utilisateur=utilisateur)
-        return client
+        fields = ['id', 'utilisateur']  
 
 class AdministrateurSerializer(serializers.ModelSerializer):
     utilisateur = UtilisateurSerializer()
-
+    
     class Meta:
         model = Administrateur
-        fields = ['utilisateur']
-
-    def create(self, validated_data):
-        utilisateur_data = validated_data.pop('utilisateur')
-        utilisateur = UtilisateurSerializer().create(utilisateur_data)
-        administrateur = Administrateur.objects.create(utilisateur=utilisateur)
-        return administrateur
+        fields = ['id', 'utilisateur']  # Ajoutez 'id' ici
 
 class VisiteurSerializer(serializers.ModelSerializer):
     class Meta:
