@@ -83,7 +83,7 @@ urlpatterns = [
 
     path('add_client/', views.add_client, name='add_client'),
     path('edit_client/<uuid:id>/', views.edit_client, name='edit_client'),
-    path('delete_client/<uuid:id>/', views.delete_client, name='delete_client'),
+path('delete_client/<int:id>/', views.delete_client, name='delete_client'),
 
     path('add_admin/', views.add_admin, name='add_admin'),
     path('edit_admin/<uuid:id>/', views.edit_admin, name='edit_admin'),

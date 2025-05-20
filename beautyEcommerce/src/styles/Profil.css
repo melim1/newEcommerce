@@ -182,17 +182,6 @@
     margin-top: 5px;
     background-color: transparent;
 }
-.action-button {
-  margin-right: 10px; /* espace entre les boutons */
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 20px;
-}
-
-.action-button:last-child {
-  margin-right: 0; /* supprime la marge pour le dernier bouton */
-}
 
 .save-changes-btn {
     grid-column: span 2;

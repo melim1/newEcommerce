@@ -11,7 +11,7 @@ function InstagramPage() {
       {/* Header */}
       <div className="insta-header">
       <img src="/images/img1.jpg" alt="Profile" className="profile-pic" />
-        <h2>IGLAM</h2>
+        <h2>Touché_Beauty</h2>
        
        
       </div>

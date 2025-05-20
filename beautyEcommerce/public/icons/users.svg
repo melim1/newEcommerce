@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#28a745" viewBox="0 0 24 24">
+  <style>
+    .cart {
+      animation: rotate 3s infinite linear;
+    }
+
+    .product {
+      animation: bounceIn 1.2s infinite ease-in-out;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes bounceIn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .cart-body {
+      fill: #28a745;
+    }
+
+    .handle {
+      fill: #2e8b57;
+    }
+  </style>
+
+  <g class="cart">
+    <!-- Panier -->
+    <circle cx="12" cy="8" r="4" class="cart-body"></circle>
+    <path class="cart-body" d="M4 20c0-4 4-6 8-6s8 2 8 6v1H4v-1z"></path>
+    <!-- Poignée du panier -->
+    <path class="handle" d="M8 2H16L17 5H7z"></path>
+  </g>
+
+  <circle class="product" cx="12" cy="8" r="2"></circle>
+</svg>

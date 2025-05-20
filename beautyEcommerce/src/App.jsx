@@ -21,26 +21,25 @@ import ListProduct from './components/product/ListeProduct';
 const App = () => {
   return (
     <BrowserRouter>
-
+     
       <Routes>
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route index element={<Home />} />
-        <Route path='products/:slug' element={<ProductPage />}></Route>
-        <Route path='/profil/products/:slug' element={<ProductPage />}></Route>
+      <Route path="/admin/dashboard" element={<AdminDashboard />} /> 
+      <Route index element={<Home />} />
+      <Route path='products/:slug' element = {<ProductPage/>}></Route>
 
-        <Route path="*" element={<NotFoundPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/profil" element={<Profil />} />
-        <Route path="/instagram" element={<InstagramPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/AddProduct" element={<AddProduct />} />
+      <Route path="*" element={<NotFoundPage />} />
+      <Route path="/cart" element={<CartPage />} />
+      <Route path="/profil" element={<Profil />} />
+      <Route path="/instagram" element={<InstagramPage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/AddProduct" element={<AddProduct />} />
 
-        <Route path="/checkout" element={<CheckOut />} />
-        <Route path="/confirmation/:commande_id" element={<Confirmation />} />
-        <Route path="/paiement/:commandeId/:montant" element={<Paiement />} />
-        <Route path="/commande/:id" element={<CommandeDetails />} />
-        <Route path="/categorie" element={<ListProduct />} />
+      <Route path="/checkout" element={<CheckOut />} />
+      <Route path="/confirmation/:commande_id" element={<Confirmation />} />
+      <Route path="/paiement/:commandeId/:montant" element={<Paiement />} />
+      <Route path="/commande/:id" element={<CommandeDetails />} />
+      <Route path="/categorie" element={<ListProduct />} />
       </Routes>
     </BrowserRouter>
   )

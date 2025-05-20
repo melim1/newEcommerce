@@ -4,8 +4,6 @@ import { FaShoppingCart, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../../api";
 import Footer from "../UI/Footer";
-import Menu from "../UI/Menu";
-
 import InstaSection from "../UI/InstaSection";
 import Header from "../UI/Header";
 import MiniCarte from "../cart/MiniCarte";
@@ -14,7 +12,6 @@ import { v4 as uuidv4 } from 'uuid';
 const ProductPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
 
   const [product, setProduct] = useState({});
   const [similarProducts, setSimilarProducts] = useState([]);
@@ -29,9 +26,7 @@ const ProductPage = () => {
   const [miniCartItems, setMiniCartItems] = useState([]);
 
   const token = localStorage.getItem('access_token');
- const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+
   // Générer cart_code si inexistant
   let cart_code = localStorage.getItem("cart_code");
   if (!cart_code) {
@@ -44,9 +39,7 @@ const ProductPage = () => {
     if (!localStorage.getItem("session_id")) {
       const newId = uuidv4();
       localStorage.setItem("session_id", newId);
-
     }
-    console.log("df" ,slug);
   }, []);
 
   useEffect(() => {
@@ -173,15 +166,9 @@ const ProductPage = () => {
   const colors = product.colors || ["#EED3C6", "#D1AFA2", "#B78E80", "#A67566", "#8D5D4D"];
 
   return (
-     
     <div className="container">
       <div className="content">
-    <Header toggleSidebar={toggleSidebar} />
-    
-          <Menu isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-    
-          {/* Overlay pour masquer le contenu principal lorsque le sidebar est ouvert */}
-          {isSidebarOpen && <div className="overlay" onClick={toggleSidebar}></div>}
+        <Header />
         <div className="product-section">
           <div className="product-image">
             <img src={`http://127.0.0.1:8000${product.image}`} alt={product.name} />
@@ -219,7 +206,7 @@ const ProductPage = () => {
         <hr className="dividere" />
 
         <div className="more-products">
-          <h3> VOIR PLUS DE IGLAM</h3>
+          <h3> VOIR PLUS DE RosaLuminosa</h3>
           <div className="product-list">
             {similarProducts.length > 0 ? (
               similarProducts.slice(0, 4).map((item) => (
@@ -304,9 +291,7 @@ const ProductPage = () => {
           items={miniCartItems}
         />
       </div>
-      
     </div>
-    
   );
 };
 

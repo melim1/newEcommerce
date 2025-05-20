@@ -8,7 +8,6 @@ import { RiHeartAdd2Fill } from 'react-icons/ri';
 import { LuPackageCheck } from "react-icons/lu";
 import { MdOutlineDisplaySettings } from "react-icons/md";
 import { AiFillShop } from "react-icons/ai";
-import { IoEyeSharp } from "react-icons/io5";
 
 import { Link } from 'react-router-dom';
 import Footer from '../UI/Footer';
@@ -20,7 +19,7 @@ import ProfilEdit from './ProfilEdit';
 
 const Profil = () => {
 
-  const [notifications, setNotifications] = useState([]);
+  const [notifications , setNotifications]= useState([]);
   const [loadingNotif, setLoadingNotif] = useState(false);
   const [activeTab, setActiveTab] = useState("info");
   const [userInfo, setUserInfo] = useState({});
@@ -73,7 +72,7 @@ const Profil = () => {
       });
   }, []);
 
-  useEffect(() => {
+ useEffect(() => {
     if (activeTab === "orders") {
       api.get("commandes/")
         .then((res) => setCommandes(res.data))
@@ -120,7 +119,7 @@ const Profil = () => {
         console.error("Erreur lors de la récupération des produits", err);
       });
   };
-  useEffect(() => {
+   useEffect(() => {
     if (activeTab === "addproduct") {
       fetchProduits();
     }
@@ -159,13 +158,13 @@ const Profil = () => {
   };
 
 
+ 
 
-
-
-  useEffect(() => {
+ 
+ useEffect(() => {
     api.get('api/client/commandes/')
       .then(res => {
-        console.log("Réponse commandes :", res.data);
+        console.log("Réponse commandes :", res.data); 
         setCommandes(res.data);
         setLoading(false);
       })
@@ -175,22 +174,22 @@ const Profil = () => {
       });
   }, [activeTab]);
   useEffect(() => {
-    if (activeTab === "notifications" && userInfo?.id && userInfo?.role === "client") {
-      api.get("/notifications/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`
-        }
-      })
-        .then(res => {
-          // Ne garder que les notifications du client connecté
-          const clientNotifs = res.data.filter(notif => notif.utilisateur === userInfo.id);
-          setNotifications(clientNotifs);
-        })
-        .catch(err => {
-          console.error("Erreur lors de la récupération des notifications", err);
-        });
-    }
-  }, [activeTab, userInfo]);
+  if (activeTab === "notifications" && userInfo?.id && userInfo?.role === "client") {
+    api.get("/notifications/", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`
+      }
+    })
+    .then(res => {
+      // Ne garder que les notifications du client connecté
+      const clientNotifs = res.data.filter(notif => notif.utilisateur === userInfo.id);
+      setNotifications(clientNotifs);
+    })
+    .catch(err => {
+      console.error("Erreur lors de la récupération des notifications", err);
+    });
+  }
+}, [activeTab, userInfo]);
 
   const changerStatut = (commandeId, nouveauStatut) => {
     api.patch(`api/client/commandes/${commandeId}/status/`, { statut: nouveauStatut })
@@ -210,7 +209,7 @@ const Profil = () => {
 
   if (loading) return <p>Chargement des commandes...</p>;
   if (erreur) return <p style={{ color: 'red' }}>{erreur}</p>;
-
+  
   const handleProductSubmit = async (e) => {
     e.preventDefault();
 
@@ -275,8 +274,8 @@ const Profil = () => {
 
   return (
     <>
-      <Header toggleSidebar={toggleSidebar} />
-
+       <Header toggleSidebar={toggleSidebar} />
+     
       <Menu isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
       {/* Overlay pour masquer le contenu principal lorsque le sidebar est ouvert */}
@@ -297,41 +296,41 @@ const Profil = () => {
             <li className={activeTab === "wishlist" ? "active" : ""} onClick={() => setActiveTab("wishlist")}>
               <FiHeart className="icon" />Mes favoris
             </li>
-
+           
             <li onClick={() => setActiveTab("notifications")} className={activeTab === "notifications" ? "active" : ""}>
               <FiBell className="icon" /> Notifications
             </li>
             {/* Menu principal "Créer ma boutique" */}
+        <li 
+          className={boutiqueOpen ? "active" : ""} 
+          onClick={() => setBoutiqueOpen(!boutiqueOpen)} 
+          style={{ cursor: "pointer"}}
+        >
+          <AiFillShop className="icon" /> Créer ma boutique
+          <span style={{ float: "right" }}>{boutiqueOpen ? "▲" : "▼"}</span>
+        </li>
+
+        {/* Sous-menu, affiché seulement si boutiqueOpen est vrai */}
+        {boutiqueOpen && (
+          <>
             <li
-              className={boutiqueOpen ? "active" : ""}
-              onClick={() => setBoutiqueOpen(!boutiqueOpen)}
-              style={{ cursor: "pointer" }}
+              className={activeTab === "addproduct" ? "active" : ""}
+              onClick={() => setActiveTab("addproduct")}
+              style={{ paddingLeft: "30px", cursor: "pointer" }}
             >
-              <AiFillShop className="icon" /> Créer ma boutique
-              <span style={{ float: "right" }}>{boutiqueOpen ? "▲" : "▼"}</span>
+              <AiFillProduct className="icon" /> Mes produits
             </li>
+            <li
+              className={activeTab === "manageorders" ? "active" : ""}
+              onClick={() => setActiveTab("manageorders")}
+              style={{ paddingLeft: "30px", cursor: "pointer" }}
+            >
+              <MdOutlineDisplaySettings className='icon' /> Gérer les commandes
+            </li>
+          </>
+        )}
 
-            {/* Sous-menu, affiché seulement si boutiqueOpen est vrai */}
-            {boutiqueOpen && (
-              <>
-                <li
-                  className={activeTab === "addproduct" ? "active" : ""}
-                  onClick={() => setActiveTab("addproduct")}
-                  style={{ paddingLeft: "30px", cursor: "pointer" }}
-                >
-                  <AiFillProduct className="icon" /> Mes produits
-                </li>
-                <li
-                  className={activeTab === "manageorders" ? "active" : ""}
-                  onClick={() => setActiveTab("manageorders")}
-                  style={{ paddingLeft: "30px", cursor: "pointer" }}
-                >
-                  <MdOutlineDisplaySettings className='icon' /> Gérer les commandes
-                </li>
-              </>
-            )}
-
-
+            
             <li className="logout" onClick={handleLogout}>
               <FiLogOut className="icon" /> Déconnexion
             </li>
@@ -341,7 +340,7 @@ const Profil = () => {
         <main className="profile-content">
           {activeTab === "orders" && (
             <>
-
+             
               <div className="orders">
                 {commandes.length === 0 ? (
                   <p>Vous n'avez pas encore passé de commande.</p>
@@ -381,7 +380,7 @@ const Profil = () => {
 
           {activeTab === "info" && (
             <>
-
+             
               {!isEditing ? (
                 <div className="form-grid">
                   <div className="form-group">
@@ -415,171 +414,144 @@ const Profil = () => {
           )}
 
 
-          {activeTab === "addproduct" && (
-            <>
-              {editingProduct ? (
-                /* Formulaire d’édition (déjà présent) */
-                <div className="edit-product-form">
-                   <form onSubmit={handleProductSubmit} encType="multipart/form-data">
-                    <div className="form-group">
-                      <label>Nom:</label>
-                      <input type="text" name="name" value={productForm.name} onChange={handleProductChange} required />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Description:</label>
-                      <input type="text" name="description" value={productForm.description} onChange={handleProductChange} required />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Prix:</label>
-                      <input type="number" name="price" value={productForm.price} onChange={handleProductChange} required />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Catégorie:</label>
-                      <input type="text" name="category" value={productForm.category} onChange={handleProductChange} required />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Stock Disponible:</label>
-                      <input type="number" name="stockDisponible" value={productForm.stockDisponible} onChange={handleProductChange} required />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Ingrédient:</label>
-                      <input type="text" name="ingredient" value={productForm.ingredient} onChange={handleProductChange} required />
-                    </div>
-
-                   
-                    <td>
-                      <div style={{ display: 'flex', gap: '16px' }}>
-                        <button type="submit" className="details-button">Confirmer</button>
-                        <button type="button" className="details-button" onClick={() => setEditingProduct(false)}>
-                          Annuler
-                        </button>
-                      </div>
-                    </td>
-
-                  </form>
-                </div>
-              ) : (
-                <>
-                  <h1 className="titre">Mes produits</h1>
-                  <table className="orders">
-                    <thead>
-                      <tr>
-                        <th>Image</th>
-                        <th>Nom</th>
-                        <th>Prix</th>
-                        <th>Catégories</th>
-                        <th>Actions</th>
-                        <th>Detail </th>
-                        <th>
-                          Nouveau produit <Link to="/addproduct" className="add-button" title="Add Product">
-                            <RiHeartAdd2Fill color="black" size={30} />
-                          </Link>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {mesProduits.map((product) => (
-                        <tr key={product.id}>
-                          <td>
-                            <img
-                              src={product.image?.startsWith('http') ? product.image : `http://127.0.0.1:8000${product.image}`}
-                              alt={product.name}
-                              height={100}
-                              width={100}
-                              style={{ objectFit: 'cover' }}
-                            />
-                          </td>
-                          <td>{product.name}</td>
-                          <td>${Number(product.price).toFixed(2)}</td>
-                          <td>{product.category}</td>
-                          <td>
-                            <button onClick={() => handleEditProduct(product)} className="action-button">
-                              <AiFillEdit />
-                            </button>
-
-                            <button onClick={() => handleDelete(product.id)} className="action-button">
-                              <AiFillDelete />
-                            </button>
-                          </td>
-                          <td> <Link to={`products/${product.slug}`} className="product-link">
-                            <IoEyeSharp size={24} />
-
-                          </Link> </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </>
-              )}
-            </>
-          )}
-
-
-          {activeTab === "wishlist" && (
-            <>
-
-              <div className="wishlist">
-                {wishlist.length === 0 ? (
-                  <p>Votre wishlist est vide.</p>
-                ) : (
-                  <div className="wishlist-items">
-                    {wishlist.map((item) => (
-                      <div key={item.id} className="wishlist-card">
-                        <img
-                          src={`http://localhost:8000${item.product.image}`}
-                          alt={item.product.name}
-                          className="wishlist-product-image"
-                        />
-                        <div className="wishlist-product-info">
-                          <h3>{item.product.name}</h3>
-                        </div>
-                        <div className="wishlist-product-inf">
-                          <p>{item.product.price} $</p>
-                        </div>
-                        <div className="wishlist-buttons">
-                          <button
-                            className="voir-details-button"
-                            onClick={() => window.location.href = `/products/${item.product.slug}`}
-                          >
-                            Voir le produit
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+        {activeTab === "addproduct" && (
+  <>
+    {editingProduct ? (
+      /* Formulaire d’édition (déjà présent) */
+      <div className="edit-product-form">
+        <form onSubmit={handleProductSubmit} encType="multipart/form-data">
+          {/* ... tes inputs ... */}
+          <div className="form-group">
+            <label>Image:</label>
+            {productForm.image_url && (
+              <div style={{ marginBottom: "10px" }}>
+                <img
+                  src={`http://127.0.0.1:8000${productForm.image_url}`} 
+                  alt="Produit"
+                  width="100"
+                />
               </div>
-            </>
-          )}
+            )}
+            <input type="file" name="image" onChange={handleFileChange} />
+          </div>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <button type="submit" className="details-button">Confirmer</button>
+            <button type="button" className="details-button" onClick={() => setEditingProduct(false)}>Annuler</button>
+          </div>
+        </form>
+      </div>
+    ) : (
+      <>
+        <h1 className="titre">Mes produits</h1>
+        <table className="orders">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Nom</th>
+              <th>Prix</th>
+              <th>Catégories</th>
+              <th>Actions</th>
+              <th>
+                Nouveau produit <Link to="/addproduct" className="add-button" title="Add Product">
+                  <RiHeartAdd2Fill color="black" size={30} />
+                </Link>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {mesProduits.map((product) => (
+              <tr key={product.id}>
+                <td>
+                  <img
+                    src={product.image?.startsWith('http') ? product.image : `http://127.0.0.1:8000${product.image}`}
+                    alt={product.name}
+                    height={100}
+                    width={100}
+                    style={{ objectFit: 'cover' }}
+                  />
+                </td>
+                <td>{product.name}</td>
+                <td>${Number(product.price).toFixed(2)}</td>
+                <td>{product.category}</td>
+                <td>
+                  <button onClick={() => handleEditProduct(product)} className="details-button edit">
+                    <AiFillEdit />
+                  </button>
+                  <button onClick={() => handleDelete(product.id)} className="details-button delete">
+                    <AiFillDelete />
+                  </button>
+                </td>
+                <td></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </>
+    )}
+  </>
+)}
+
+
+         {activeTab === "wishlist" && (
+  <>
+
+    <div className="wishlist">
+      {wishlist.length === 0 ? (
+        <p>Votre wishlist est vide.</p>
+      ) : (
+        <div className="wishlist-items">
+          {wishlist.map((item) => (
+            <div key={item.id} className="wishlist-card">
+              <img
+                src={`http://localhost:8000${item.product.image}`}
+                alt={item.product.name}
+                className="wishlist-product-image"
+              />
+              <div className="wishlist-product-info">
+                <h3>{item.product.name}</h3>
+              </div>
+              <div className="wishlist-product-inf">
+                <p>{item.product.price} $</p>
+              </div>
+              <div className="wishlist-buttons">
+                <button
+                  className="voir-details-button"
+                  onClick={() => window.location.href = `/product/${item.product.slug}`}
+                >
+                  Voir le produit
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </>
+)}
 
 
           {activeTab === "notifications" && (
-            <>
-              <div className='notifications'>
-                <div className="notifications-container">
-
-                  {loadingNotif ? (
-                    <p>Chargement...</p>
-                  ) : notifications.length > 0 ? (
-                    <ul>
-                      {notifications.map((notif) => (
-                        <li key={notif.id} className={`notif notif-${notif.type}`}>
-                          <strong>{notif.type.toUpperCase()}:</strong> {notif.message}
-                          <br />
-                          <small>{new Date(notif.dateEnvoi).toLocaleString()}</small>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>Aucune notification pour le moment.</p>
-                  )}
-                </div>
-              </div>
+                <>
+               <div className='notifications'>
+          <div className="notifications-container"> 
+           
+            {loadingNotif ? (
+              <p>Chargement...</p>
+            ) : notifications.length > 0 ? (
+              <ul>
+                {notifications.map((notif) => (
+                  <li key={notif.id} className={`notif notif-${notif.type}`}>
+                    <strong>{notif.type.toUpperCase()}:</strong> {notif.message}
+                    <br />
+                    <small>{new Date(notif.dateEnvoi).toLocaleString()}</small>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Aucune notification pour le moment.</p>
+            )}
+          </div>
+          </div>
             </>
 
 
@@ -608,9 +580,9 @@ const Profil = () => {
                       <td>{commande.montantTotal} €</td>
                       <td className={`statut ${commande.statut.toLowerCase()}`}>{commande.statut}</td>
                       <td className="actions">
-                        <button className="details-button" onClick={() => { changerStatut(commande.id, 'VALIDÉE'); envoyerNotification(commande.id, "Validée", commande.client?.utilisateur?.id) }}>Validée</button>
-                        <button className="details-button" onClick={() => { changerStatut(commande.id, 'EXPÉDIÉ'); envoyerNotification(commande.id, "EXPÉDIÉ", commande.client?.utilisateur?.id) }}>Expédiée</button>
-                        <button className="details-button" onClick={() => { changerStatut(commande.id, 'ANNULÉE'); envoyerNotification(commande.id, "ANNULÉE", commande.client?.utilisateur?.id) }}>Annulée</button>
+                        <button className="details-button" onClick={() => { changerStatut(commande.id, 'VALIDÉE'); envoyerNotification(commande.id,"Validée", commande.client?.utilisateur?.id) }}>Validée</button>
+                        <button className="details-button" onClick={() => { changerStatut(commande.id, 'EXPÉDIÉ'); envoyerNotification(commande.id,"EXPÉDIÉ", commande.client?.utilisateur?.id) }}>Expédiée</button>
+                        <button className="details-button" onClick={() => { changerStatut(commande.id, 'ANNULÉE'); envoyerNotification(commande.id,"ANNULÉE", commande.client?.utilisateur?.id) }}>Annulée</button>
 
                       </td>
 
